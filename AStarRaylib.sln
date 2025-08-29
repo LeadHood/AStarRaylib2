@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.14.36414.22 d17.14
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AStarRaylib", "AStarRaylib.csproj", "{3EED1011-C09C-49A5-B613-25CC6D822F25}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{3EED1011-C09C-49A5-B613-25CC6D822F25}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3EED1011-C09C-49A5-B613-25CC6D822F25}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3EED1011-C09C-49A5-B613-25CC6D822F25}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3EED1011-C09C-49A5-B613-25CC6D822F25}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {4175AC3F-78EF-45E8-AB24-2D6DB28E4514}
+	EndGlobalSection
+EndGlobal
