@@ -25,7 +25,7 @@ namespace AStarRaylib
         public int G { get; private set; } = 0;
         public int F { get => G + H; }
 
-        public Tile Parent { get; set; }
+        public Tile? Parent { get; set; }
 
         public Tile(Vector2 position, TileType type)
         {
@@ -47,11 +47,14 @@ namespace AStarRaylib
             }
 
             //Calculate H
-            int xDiff = (int)Mathf.Abs(endPos.X - Position.X);
-            int yDiff = (int)Mathf.Abs(endPos.Y - Position.Y);
+            int xDiff = (int)Math.Abs(endPos.X - Position.X);
+            int yDiff = (int)Math.Abs(endPos.Y - Position.Y);
             H = xDiff * 10 + yDiff * 10;
+        }
 
-            //H = (int)Mathf.Floor(Mathf.Sqrt((xDiff * xDiff + yDiff * yDiff) * 10));
+        public void Draw()
+        {
+            Raylib.DrawRectangle((int)Position.X * Program.SQR_PIXEL_SIZE, (int)Position.Y * Program.SQR_PIXEL_SIZE, Program.SQR_PIXEL_SIZE, Program.SQR_PIXEL_SIZE, Color.Yellow);
         }
     }
 }

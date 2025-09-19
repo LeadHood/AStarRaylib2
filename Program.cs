@@ -1,13 +1,29 @@
 ﻿using System;
 using Raylib_cs;
+using System.Numerics;
 
 namespace AStarRaylib
 {
     class Program
     {
+        public const int SQR_PIXEL_SIZE = 50;
+
+        const int SCREEN_X = 10;
+        const int SCREEN_Y = 5;
+
+        static Tile[,] Tiles = new Tile[SCREEN_X, SCREEN_Y];
+
         static void Main(string[] args)
         {
-            Raylib.InitWindow(800, 800, "ASTAR");
+            Raylib.InitWindow(SCREEN_X * SQR_PIXEL_SIZE, SCREEN_Y * SQR_PIXEL_SIZE, "ASTAR");
+
+            for (int y = 0; y < Tiles.GetLength(1); y++)
+            {
+                for (int x = 0; x < Tiles.GetLength(0); x++)
+                {
+                    Tiles[x, y] = new Tile(new Vector2(x, y), TileType.Unopened);
+                }
+            }
 
             while (!Raylib.WindowShouldClose())
             {
@@ -27,9 +43,13 @@ namespace AStarRaylib
             Raylib.BeginDrawing();
             Raylib.ClearBackground(Color.White);
 
-            Raylib.DrawText("Hello guy", 500, 500, 20, Color.Red);
-
-            Raylib.DrawRectangle(10, 10, 100, 100, Color.Brown);
+            for (int y = 0; y < Tiles.GetLength(1); y++)
+            {
+                for (int x  = 0; x < Tiles.GetLength(0); x++)
+                {
+                    Tiles[x, y].Draw();
+                }
+            }
 
             Raylib.EndDrawing();
         }
