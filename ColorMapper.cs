@@ -1,0 +1,33 @@
+﻿using System;
+using Raylib_cs;
+
+namespace AStarRaylib
+{
+    public static class ColorMapper
+    {
+        public static Color TextColor = Color.White;
+        public static Color ObstacleColor = Color.White;
+        public static Color UnopenedColor = Color.Black;
+        public static Color OpenedColor = Color.Lime;
+        public static Color ClosedColor = Color.Blue;
+
+        public static Color GetColorByTileType(TileType tileType)
+        {
+            Color color = new Color();
+
+            switch (tileType)
+            {
+                case TileType.Obstacle:
+                    color = ObstacleColor;
+                    break;
+                case TileType.Unopened:
+                    color = ObstacleColor;
+                    break;
+                default:
+                    throw new Exception("This tiletype does not have a color");
+            }
+
+            return color;
+        }
+    }
+}

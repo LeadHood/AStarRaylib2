@@ -6,7 +6,7 @@ using System.Numerics;
 
 namespace AStarRaylib
 {
-    enum TileType
+    public enum TileType
     {
         Unopened, 
         Opened, 
@@ -54,7 +54,7 @@ namespace AStarRaylib
 
         public void Draw()
         {
-            Raylib.DrawRectangle((int)Position.X * Program.SQR_PIXEL_SIZE, (int)Position.Y * Program.SQR_PIXEL_SIZE, Program.SQR_PIXEL_SIZE, Program.SQR_PIXEL_SIZE, Color.Yellow);
+            Raylib.DrawRectangle((int)Position.X * Program.SQR_PIXEL_SIZE, (int)Position.Y * Program.SQR_PIXEL_SIZE, Program.SQR_PIXEL_SIZE, Program.SQR_PIXEL_SIZE, Color.Black);
         }
     }
 }
