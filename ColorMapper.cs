@@ -10,6 +10,7 @@ namespace AStarRaylib
         public static Color UnopenedColor = Color.Black;
         public static Color OpenedColor = Color.Lime;
         public static Color ClosedColor = Color.Blue;
+        public static Color StartGoalColor = Color.Orange;
 
         public static Color GetColorByTileType(TileType tileType)
         {
@@ -21,7 +22,10 @@ namespace AStarRaylib
                     color = ObstacleColor;
                     break;
                 case TileType.Unopened:
-                    color = ObstacleColor;
+                    color = UnopenedColor;
+                    break;
+                case (TileType.Start):
+                    color = StartGoalColor;
                     break;
                 default:
                     throw new Exception("This tiletype does not have a color");

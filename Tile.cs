@@ -11,7 +11,9 @@ namespace AStarRaylib
         Unopened, 
         Opened, 
         Closed, 
-        Obstacle
+        Obstacle,
+        Start,
+        Goal
     }
 
     class Tile
@@ -54,7 +56,22 @@ namespace AStarRaylib
 
         public void Draw()
         {
-            Raylib.DrawRectangle((int)Position.X * Program.SQR_PIXEL_SIZE, (int)Position.Y * Program.SQR_PIXEL_SIZE, Program.SQR_PIXEL_SIZE, Program.SQR_PIXEL_SIZE, Color.Black);
+            Raylib.DrawRectangle((int)Position.X * Program.SQR_PIXEL_SIZE, (int)Position.Y * Program.SQR_PIXEL_SIZE, Program.SQR_PIXEL_SIZE, Program.SQR_PIXEL_SIZE, ColorMapper.GetColorByTileType(this.Type));
+
+            if (!Program.DebugMode || Type == TileType.Unopened)
+            {
+                return;
+            }
+
+            //G value
+            Raylib.DrawText($"{G}", (int)Position.X * Program.SQR_PIXEL_SIZE + Program.TEXT_OFFSET, (int)Position.Y * Program.SQR_PIXEL_SIZE + Program.TEXT_OFFSET, 15, ColorMapper.TextColor);
+
+            //H value
+
+            Raylib.DrawText($"{G}", (int)Position.X * Program.SQR_PIXEL_SIZE + Program.TEXT_OFFSET, (int)Position.Y * Program.SQR_PIXEL_SIZE + Program.TEXT_OFFSET, 15, ColorMapper.TextColor);
+
+
+            //F value
         }
     }
 }

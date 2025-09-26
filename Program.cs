@@ -6,10 +6,13 @@ namespace AStarRaylib
 {
     class Program
     {
-        public const int SQR_PIXEL_SIZE = 100;
+        public static bool DebugMode = true;
 
-        const int SCREEN_X = 10;
-        const int SCREEN_Y = 5;
+        public const int SQR_PIXEL_SIZE = 60;
+        public const int TEXT_OFFSET = 2;
+
+        const int SCREEN_X = 20;
+        const int SCREEN_Y = 15;
 
         static Vector2 StartPos = new Vector2(1, 1);
         static Vector2 EndPos = new Vector2(7, 3);
@@ -27,6 +30,8 @@ namespace AStarRaylib
                     Tiles[x, y] = new Tile(new Vector2(x, y), TileType.Unopened);
                 }
             }
+
+            Tiles[(int)StartPos.X, (int)StartPos.Y].Type = TileType.Start;
 
            // Tiles[(int)StartPos.X, (int)StartPos.
 
