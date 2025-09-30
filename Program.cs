@@ -8,6 +8,10 @@ namespace AStarRaylib
     {
         public static bool DebugMode = true;
 
+        // 0 for instant pathfinding
+        const int DEBUG_FRAMES = 5;
+        static int FrameTimer = 0;
+
         public const int SQR_PIXEL_SIZE = 60;
         public const int TEXT_OFFSET = 2;
 
@@ -17,23 +21,14 @@ namespace AStarRaylib
         static Vector2 StartPos = new Vector2(1, 1);
         static Vector2 EndPos = new Vector2(7, 3);
 
+        static IPathFinder CurrentPathFinder = new Pathfinders.AStarBase();
+        //static 
+
         static Tile[,] Tiles = new Tile[SCREEN_X, SCREEN_Y];
 
         static void Main(string[] args)
         {
-            Raylib.InitWindow(SCREEN_X * SQR_PIXEL_SIZE, SCREEN_Y * SQR_PIXEL_SIZE, "ASTAR");
-
-            for (int y = 0; y < Tiles.GetLength(1); y++)
-            {
-                for (int x = 0; x < Tiles.GetLength(0); x++)
-                {
-                    Tiles[x, y] = new Tile(new Vector2(x, y), TileType.Unopened);
-                }
-            }
-
-            Tiles[(int)StartPos.X, (int)StartPos.Y].Type = TileType.Start;
-
-           // Tiles[(int)StartPos.X, (int)StartPos.
+            Start();
 
             while (!Raylib.WindowShouldClose())
             {
@@ -44,12 +39,33 @@ namespace AStarRaylib
             }
         }
 
+        static void Start()
+        {
+            Raylib.InitWindow(SCREEN_X * SQR_PIXEL_SIZE, SCREEN_Y * SQR_PIXEL_SIZE, "ASTAR");
+            Raylib.SetTargetFPS(60);
+
+            for (int y = 0; y < Tiles.GetLength(1); y++)
+            {
+                for (int x = 0; x < Tiles.GetLength(0); x++)
+                {
+                    Tiles[x, y] = new Tile(new Vector2(x, y), TileType.Unopened);
+                }
+            }
+
+            Tiles[(int)StartPos.X, (int)StartPos.Y].Type = TileType.Start;
+        }
+
         static void Update()
         {
-            //if (Raylib.GetKeyPressed() == (int)KeyboardKey.T)
-            //{
-            //    Raylib.SetWindowTitle("Epi");
-            //}
+            if(FrameTimer >= DEBUG_FRAMES)
+            {
+
+
+                FrameTimer = 0;
+            }
+
+
+            FrameTimer++;
         }
 
         static void Draw()
