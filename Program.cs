@@ -10,7 +10,7 @@ namespace AStarRaylib
         public static bool DebugMode = true;
 
         // 0 for instant pathfinding
-        const int DEBUG_FRAMES = 5;
+        const int DEBUG_FRAMES = 120;
         static int FrameTimer = 0;
 
         const float DEBUG_LINE_SIZE = 4;

@@ -12,9 +12,12 @@ namespace AStarRaylib.Pathfinders
 
         public Tile? IterationForTile(Tile tile, Tile[,] tiles, Vector2 startPos, Vector2 endPos)
         {
-            if ((int)tile.Position.X == (int)endPos.X && (int)tile.Position.Y == (int)endPos.Y)
+            Console.WriteLine($"I CAME IN HERE 1 {tile.Position}; {endPos.X}, {endPos.Y}");
+
+
+            if (((int)tile.Position.X == (int)endPos.X) && ((int)tile.Position.Y == (int)endPos.Y))
             {
-                Console.WriteLine("I CAME IN HERE");
+                //Console.WriteLine("I CAME IN HERE 2");
 
                 tile.Type = TileType.Closed;
                 return tile;
@@ -43,7 +46,7 @@ namespace AStarRaylib.Pathfinders
 
                     Tile curTile = tiles[i, j];
 
-                    if (curTile.Type != TileType.Unopened)
+                    if (curTile.Type != TileType.Unopened || curTile.Type != TileType.Goal)
                     {
                         continue;
                     }
