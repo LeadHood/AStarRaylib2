@@ -1,6 +1,7 @@
 ﻿using System;
 using Raylib_cs;
 using System.Numerics;
+using System.Linq;
 
 namespace AStarRaylib
 {
@@ -12,8 +13,11 @@ namespace AStarRaylib
         const int DEBUG_FRAMES = 5;
         static int FrameTimer = 0;
 
+        const float DEBUG_LINE_SIZE = 4;
+
         public const int SQR_PIXEL_SIZE = 60;
         public const int TEXT_OFFSET = 2;
+        public const int FONT_SIZE = 18;
 
         const int SCREEN_X = 20;
         const int SCREEN_Y = 15;
@@ -22,7 +26,7 @@ namespace AStarRaylib
         static Vector2 EndPos = new Vector2(7, 3);
 
         static IPathFinder CurrentPathFinder = new Pathfinders.AStarBase();
-        //static 
+        static List<Vector2> ThePath = new List<Vector2>();
 
         static Tile[,] Tiles = new Tile[SCREEN_X, SCREEN_Y];
 
@@ -41,6 +45,8 @@ namespace AStarRaylib
 
         static void Start()
         {
+            Raylib.SetTraceLogLevel(TraceLogLevel.Error);
+
             Raylib.InitWindow(SCREEN_X * SQR_PIXEL_SIZE, SCREEN_Y * SQR_PIXEL_SIZE, "ASTAR");
             Raylib.SetTargetFPS(60);
 
@@ -53,17 +59,31 @@ namespace AStarRaylib
             }
 
             Tiles[(int)StartPos.X, (int)StartPos.Y].Type = TileType.Start;
+            Tiles[(int)EndPos.X, (int)EndPos.Y].Type = TileType.Start;
         }
 
         static void Update()
         {
             if(FrameTimer >= DEBUG_FRAMES)
             {
-
-
                 FrameTimer = 0;
-            }
 
+                Console.Write($"{CurrentPathFinder.FoundPath}");
+
+                if (CurrentPathFinder.FoundPath)
+                {
+                    return;
+                }
+
+                Tile chosenTile = CurrentPathFinder.ChooseLowestF(Tiles, StartPos);
+                Tile? endingTile = CurrentPathFinder.IterationForTile(chosenTile, Tiles, StartPos, EndPos);
+
+                if(endingTile != null)
+                {
+                    CurrentPathFinder.FoundPath = true;
+                    ThePath = endingTile.GetPath();
+                }
+            }
 
             FrameTimer++;
         }
@@ -81,7 +101,20 @@ namespace AStarRaylib
                 }
             }
 
+            if (ThePath.Count > 0)
+            {
+                DrawPath(ThePath);
+            }
+
             Raylib.EndDrawing();
+        }
+
+        static void DrawPath(List<Vector2> positions)
+        {
+            for (int i = 0; i < positions.Count - 1; i++)
+            {
+                Raylib.DrawLineEx(positions[i], positions[i + 1], DEBUG_LINE_SIZE, ColorMapper.DebugLineColor);
+            }
         }
     }
 }

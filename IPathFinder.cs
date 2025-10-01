@@ -7,6 +7,13 @@ namespace AStarRaylib
 {
     interface IPathFinder
     {
+        bool FirstIteration { get; }
+        bool FoundPath { get; set; }
+
         Tile? IterationForTile(Tile tile, Tile[,] tiles, Vector2 startPos, Vector2 endPos);
+
+        Tile ChooseLowestF(Tile[,] tiles, Vector2 startpos);
+
+        void ResetBrain();
     }
 }

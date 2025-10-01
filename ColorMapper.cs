@@ -6,6 +6,8 @@ namespace AStarRaylib
     public static class ColorMapper
     {
         public static Color TextColor = Color.White;
+        public static Color DebugLineColor = Color.Maroon;
+
         public static Color ObstacleColor = Color.White;
         public static Color UnopenedColor = Color.Black;
         public static Color OpenedColor = Color.Lime;
@@ -24,11 +26,17 @@ namespace AStarRaylib
                 case TileType.Unopened:
                     color = UnopenedColor;
                     break;
-                case (TileType.Start):
+                case TileType.Opened:
+                    color = OpenedColor;
+                    break;
+                case TileType.Closed:
+                    color = StartGoalColor;
+                    break;
+                case TileType.Start:
                     color = StartGoalColor;
                     break;
                 default:
-                    throw new Exception("This tiletype does not have a color");
+                    throw new Exception($"This tiletype does not have a color: {tileType}");
             }
 
             return color;

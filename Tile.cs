@@ -1,4 +1,5 @@
 ﻿using Raylib_cs;
+using static Raylib_cs.Raylib;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -35,6 +36,25 @@ namespace AStarRaylib
             Type = type;
         }
 
+        //Returns the path from this tile if it is the ending tile
+        public List<Vector2> GetPath()
+        {
+            Console.WriteLine("GETTED PATH ACTUALLY");
+
+            Tile? tile = this;
+            List<Vector2> positions = new List<Vector2>();
+
+            while(tile != null)
+            {
+                positions.Add(tile.Position);
+                tile = tile.Parent;
+            }
+
+            positions.Reverse();
+
+            return positions;
+        }
+
         public void CalculateValues(Vector2 endPos)
         {
             //G adds senders G + 14 if diagonal, 10 if straight
@@ -56,7 +76,7 @@ namespace AStarRaylib
 
         public void Draw()
         {
-            Raylib.DrawRectangle((int)Position.X * Program.SQR_PIXEL_SIZE, (int)Position.Y * Program.SQR_PIXEL_SIZE, Program.SQR_PIXEL_SIZE, Program.SQR_PIXEL_SIZE, ColorMapper.GetColorByTileType(this.Type));
+            DrawRectangle((int)Position.X * Program.SQR_PIXEL_SIZE, (int)Position.Y * Program.SQR_PIXEL_SIZE, Program.SQR_PIXEL_SIZE, Program.SQR_PIXEL_SIZE, ColorMapper.GetColorByTileType(this.Type));
 
             if (!Program.DebugMode || Type == TileType.Unopened)
             {
@@ -64,13 +84,11 @@ namespace AStarRaylib
             }
 
             //G value
-            Raylib.DrawText($"{G}", (int)Position.X * Program.SQR_PIXEL_SIZE + Program.TEXT_OFFSET, (int)Position.Y * Program.SQR_PIXEL_SIZE + Program.TEXT_OFFSET, 15, ColorMapper.TextColor);
+            DrawText($"{G}", (int)Position.X * Program.SQR_PIXEL_SIZE + Program.TEXT_OFFSET, (int)Position.Y * Program.SQR_PIXEL_SIZE + Program.TEXT_OFFSET, Program.FONT_SIZE, ColorMapper.TextColor);
 
             //H value
 
-            Raylib.DrawText($"{G}", (int)Position.X * Program.SQR_PIXEL_SIZE + Program.TEXT_OFFSET, (int)Position.Y * Program.SQR_PIXEL_SIZE + Program.TEXT_OFFSET, 15, ColorMapper.TextColor);
-
-
+            DrawText($"{G}", (int)Position.X * Program.SQR_PIXEL_SIZE + Program.TEXT_OFFSET, (int)(Position.Y + 1) * Program.SQR_PIXEL_SIZE - Program.TEXT_OFFSET - (int)MeasureTextEx(GetFontDefault(), "10", Program.FONT_SIZE, 0).Y, Program.FONT_SIZE, ColorMapper.TextColor);
             //F value
         }
     }

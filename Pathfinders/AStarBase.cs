@@ -7,10 +7,15 @@ namespace AStarRaylib.Pathfinders
 {
     class AStarBase : IPathFinder
     {
-        public Tile? IterationForTile(Tile tile, Tile[,] tiles, Vector2 StartPos, Vector2 endPos)
+        public bool FirstIteration { get; private set; } = true;
+        public bool FoundPath { get; set; } = false;
+
+        public Tile? IterationForTile(Tile tile, Tile[,] tiles, Vector2 startPos, Vector2 endPos)
         {
             if ((int)tile.Position.X == (int)endPos.X && (int)tile.Position.Y == (int)endPos.Y)
             {
+                Console.WriteLine("I CAME IN HERE");
+
                 tile.Type = TileType.Closed;
                 return tile;
             }
@@ -36,7 +41,7 @@ namespace AStarRaylib.Pathfinders
                         continue;
                     }
 
-                    Tile curTile = tiles[j, i];
+                    Tile curTile = tiles[i, j];
 
                     if (curTile.Type != TileType.Unopened)
                     {
@@ -48,19 +53,19 @@ namespace AStarRaylib.Pathfinders
                     {
                         if (j > y)
                         {
-                            if (tiles[y + 1, x].Type == TileType.Obstacle) { continue; }
+                            if (tiles[x, y + 1].Type == TileType.Obstacle) { continue; }
                         }
                         else
                         {
-                            if (tiles[y - 1, x].Type == TileType.Obstacle) { continue; }
+                            if (tiles[x, y - 1].Type == TileType.Obstacle) { continue; }
                         }
                         if (i > x)
                         {
-                            if (tiles[y, x + 1].Type == TileType.Obstacle) { continue; }
+                            if (tiles[x + 1, y].Type == TileType.Obstacle) { continue; }
                         }
                         else
                         {
-                            if (tiles[y, x - 1].Type == TileType.Obstacle) { continue; }
+                            if (tiles[x - 1, y].Type == TileType.Obstacle) { continue; }
                         }
                     }
 
@@ -72,6 +77,23 @@ namespace AStarRaylib.Pathfinders
             }
 
             return null;
+        }
+
+        public Tile ChooseLowestF(Tile[,] tiles, Vector2 startPos)
+        {
+            if (FirstIteration == true)
+            {
+                FirstIteration = false;
+                return tiles[(int)startPos.X, (int)startPos.Y];
+            }
+
+            //Using linq to find lowest F
+            return tiles.Cast<Tile>().Where(tile => tile.Type == TileType.Opened).OrderBy(tile => tile.F).First();
+        }
+
+        public void ResetBrain()
+        {
+            FirstIteration = true;
         }
     }
 }
