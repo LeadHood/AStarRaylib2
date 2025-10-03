@@ -11,7 +11,7 @@ namespace AStarRaylib
         public static bool DebugMode = true;
 
         // 0 for instant pathfinding
-        const int DEBUG_FRAMES = 10;
+        const int DEBUG_FRAMES = 60;
         static int FrameTimer = 0;
 
         const float DEBUG_LINE_SIZE = 4;
@@ -66,10 +66,10 @@ namespace AStarRaylib
                     ObstaclePositions.Add(mouseTilePos);
                 }
                 else 
-                { 
-                    ObstaclePositions.Remove(mouseTilePos); 
+                {
+                    ObstaclePositions.Remove(mouseTilePos);
                 }
-                
+
                 Reset();
             }
 
@@ -141,6 +141,8 @@ namespace AStarRaylib
             }
 
             Tiles[(int)StartPos.X, (int)StartPos.Y].Type = TileType.Start;
+            Tiles[(int)StartPos.X, (int)StartPos.Y].CalculateValues(EndPos);
+
             Tiles[(int)EndPos.X, (int)EndPos.Y].Type = TileType.Goal;
 
             FrameTimer = 0;

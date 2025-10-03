@@ -77,6 +77,7 @@ namespace AStarRaylib
                 return parent.G + 10; 
         }
 
+
         public void Draw()
         {
             DrawRectangle((int)Position.X * Program.SQR_PIXEL_SIZE, (int)Position.Y * Program.SQR_PIXEL_SIZE, Program.SQR_PIXEL_SIZE, Program.SQR_PIXEL_SIZE, ColorMapper.GetColorByTileType(this.Type));

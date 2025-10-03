@@ -12,13 +12,12 @@ namespace AStarRaylib.Pathfinders
 
         public Tile? IterationForTile(Tile tile, Tile[,] tiles, Vector2 startPos, Vector2 endPos)
         {
+            tile.Type = TileType.Closed;
+
             if (((int)tile.Position.X == (int)endPos.X) && ((int)tile.Position.Y == (int)endPos.Y))
             {
-                tile.Type = TileType.Closed;
                 return tile;
             }
-
-            tile.Type = TileType.Closed;
 
             int x = (int)tile.Position.X;
             int y = (int)tile.Position.Y;
@@ -28,7 +27,9 @@ namespace AStarRaylib.Pathfinders
             {
                 for (int i = x - 1; i < x + 2; i++)
                 {
-                    if (i == x && j == y)
+                    Tile curTile = tiles[i, j];
+
+                    if (curTile.Type == TileType.Obstacle|| curTile.Type == TileType.Closed)
                     {
                         continue;
                     }
@@ -39,7 +40,6 @@ namespace AStarRaylib.Pathfinders
                         continue;
                     }
 
-                    Tile curTile = tiles[i, j];
 
                     if(curTile.Type == TileType.Opened && (curTile.G > tile.G + curTile.CalculateG(tile)))
                     {
