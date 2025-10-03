@@ -1,4 +1,5 @@
 ﻿using System;
+using static Raylib_cs.Raylib;
 using Raylib_cs;
 using System.Numerics;
 using System.Linq;
@@ -10,7 +11,7 @@ namespace AStarRaylib
         public static bool DebugMode = true;
 
         // 0 for instant pathfinding
-        const int DEBUG_FRAMES = 120;
+        const int DEBUG_FRAMES = 10;
         static int FrameTimer = 0;
 
         const float DEBUG_LINE_SIZE = 4;
@@ -23,10 +24,11 @@ namespace AStarRaylib
         const int SCREEN_Y = 15;
 
         static Vector2 StartPos = new Vector2(1, 1);
-        static Vector2 EndPos = new Vector2(7, 3);
+        static Vector2 EndPos = new Vector2(19, 10);
 
         static IPathFinder CurrentPathFinder = new Pathfinders.AStarBase();
         static List<Vector2> ThePath = new List<Vector2>();
+        static List<Vector2> ObstaclePositions = new List<Vector2>();
 
         static Tile[,] Tiles = new Tile[SCREEN_X, SCREEN_Y];
 
@@ -34,10 +36,9 @@ namespace AStarRaylib
         {
             Start();
 
-            while (!Raylib.WindowShouldClose())
+            while (!WindowShouldClose())
             {
                 Update();
-
 
                 Draw();
             }
@@ -45,30 +46,36 @@ namespace AStarRaylib
 
         static void Start()
         {
-            Raylib.SetTraceLogLevel(TraceLogLevel.Error);
+            SetTraceLogLevel(TraceLogLevel.Error);
 
-            Raylib.InitWindow(SCREEN_X * SQR_PIXEL_SIZE, SCREEN_Y * SQR_PIXEL_SIZE, "ASTAR");
-            Raylib.SetTargetFPS(60);
+            InitWindow(SCREEN_X * SQR_PIXEL_SIZE, SCREEN_Y * SQR_PIXEL_SIZE, "ASTAR");
+            SetTargetFPS(60);
 
-            for (int y = 0; y < Tiles.GetLength(1); y++)
-            {
-                for (int x = 0; x < Tiles.GetLength(0); x++)
-                {
-                    Tiles[x, y] = new Tile(new Vector2(x, y), TileType.Unopened);
-                }
-            }
-
-            Tiles[(int)StartPos.X, (int)StartPos.Y].Type = TileType.Start;
-            Tiles[(int)EndPos.X, (int)EndPos.Y].Type = TileType.Start;
+            Reset();
         }
 
         static void Update()
         {
+            if (IsMouseButtonPressed(MouseButton.Left))
+            {
+                Vector2 mousePos = GetMousePosition();
+                Vector2 mouseTilePos = new Vector2((int)mousePos.X/SQR_PIXEL_SIZE, (int)mousePos.Y / SQR_PIXEL_SIZE);
+
+                if (!ObstaclePositions.Exists(vec => vec.X == (int)mouseTilePos.X && vec.Y == (int)mouseTilePos.Y))
+                {
+                    ObstaclePositions.Add(mouseTilePos);
+                }
+                else 
+                { 
+                    ObstaclePositions.Remove(mouseTilePos); 
+                }
+                
+                Reset();
+            }
+
             if(FrameTimer >= DEBUG_FRAMES)
             {
                 FrameTimer = 0;
-
-                Console.Write($"{CurrentPathFinder.FoundPath}");
 
                 if (CurrentPathFinder.FoundPath)
                 {
@@ -90,8 +97,8 @@ namespace AStarRaylib
 
         static void Draw()
         {
-            Raylib.BeginDrawing();
-            Raylib.ClearBackground(Color.White);
+            BeginDrawing();
+            ClearBackground(Color.White);
 
             for (int y = 0; y < Tiles.GetLength(1); y++)
             {
@@ -106,15 +113,39 @@ namespace AStarRaylib
                 DrawPath(ThePath);
             }
 
-            Raylib.EndDrawing();
+            EndDrawing();
         }
 
         static void DrawPath(List<Vector2> positions)
         {
             for (int i = 0; i < positions.Count - 1; i++)
             {
-                Raylib.DrawLineEx(positions[i], positions[i + 1], DEBUG_LINE_SIZE, ColorMapper.DebugLineColor);
+                DrawLineEx(SQR_PIXEL_SIZE * new Vector2(positions[i].X + 0.5f, positions[i].Y + 0.5f), SQR_PIXEL_SIZE * new Vector2(positions[i + 1].X + 0.5f, positions[i + 1].Y + 0.5f), DEBUG_LINE_SIZE, ColorMapper.DebugLineColor);
             }
+        }
+
+        static void Reset()
+        {
+            for (int y = 0; y < Tiles.GetLength(1); y++)
+            {
+                for (int x = 0; x < Tiles.GetLength(0); x++)
+                {
+                    if(ObstaclePositions.Exists(vec => (int)vec.X == x && (int)vec.Y == y))
+                    {
+                        Tiles[x, y] = new Tile(new Vector2(x, y), TileType.Obstacle);
+                        continue;
+                    }
+
+                    Tiles[x, y] = new Tile(new Vector2(x, y), TileType.Unopened);
+                }
+            }
+
+            Tiles[(int)StartPos.X, (int)StartPos.Y].Type = TileType.Start;
+            Tiles[(int)EndPos.X, (int)EndPos.Y].Type = TileType.Goal;
+
+            FrameTimer = 0;
+            ThePath = new List<Vector2>();
+            CurrentPathFinder.ResetBrain();
         }
     }
 }

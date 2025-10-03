@@ -30,9 +30,12 @@ namespace AStarRaylib
                     color = OpenedColor;
                     break;
                 case TileType.Closed:
-                    color = StartGoalColor;
+                    color = ClosedColor;
                     break;
                 case TileType.Start:
+                    color = StartGoalColor;
+                    break;
+                case TileType.Goal:
                     color = StartGoalColor;
                     break;
                 default:

@@ -12,13 +12,8 @@ namespace AStarRaylib.Pathfinders
 
         public Tile? IterationForTile(Tile tile, Tile[,] tiles, Vector2 startPos, Vector2 endPos)
         {
-            Console.WriteLine($"I CAME IN HERE 1 {tile.Position}; {endPos.X}, {endPos.Y}");
-
-
             if (((int)tile.Position.X == (int)endPos.X) && ((int)tile.Position.Y == (int)endPos.Y))
             {
-                //Console.WriteLine("I CAME IN HERE 2");
-
                 tile.Type = TileType.Closed;
                 return tile;
             }
@@ -46,7 +41,14 @@ namespace AStarRaylib.Pathfinders
 
                     Tile curTile = tiles[i, j];
 
-                    if (curTile.Type != TileType.Unopened || curTile.Type != TileType.Goal)
+                    if(curTile.Type == TileType.Opened && (curTile.G > tile.G + curTile.CalculateG(tile)))
+                    {
+                        curTile.Parent = tile;
+                        curTile.G = curTile.CalculateG(tile);
+                        continue;
+                    }
+
+                    if (curTile.Type == TileType.Obstacle || curTile.Type == TileType.Closed || curTile.Type == TileType.Start)
                     {
                         continue;
                     }
@@ -74,8 +76,8 @@ namespace AStarRaylib.Pathfinders
 
                     //Setting it open
                     curTile.Type = TileType.Opened;
-                    curTile.CalculateValues(endPos);
                     curTile.Parent = tile;
+                    curTile.CalculateValues(endPos);
                 }
             }
 
@@ -97,6 +99,7 @@ namespace AStarRaylib.Pathfinders
         public void ResetBrain()
         {
             FirstIteration = true;
+            FoundPath = false;
         }
     }
 }
