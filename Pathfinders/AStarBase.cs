@@ -27,19 +27,13 @@ namespace AStarRaylib.Pathfinders
             {
                 for (int i = x - 1; i < x + 2; i++)
                 {
-                    Tile curTile = tiles[i, j];
-
-                    if (curTile.Type == TileType.Obstacle|| curTile.Type == TileType.Closed)
-                    {
-                        continue;
-                    }
-
                     //Can't be outside of bounds, therefore continue if the index is.
                     if (i < 0 || i >= tiles.GetLength(0) || j < 0 || j >= tiles.GetLength(1))
                     {
                         continue;
                     }
 
+                    Tile curTile = tiles[i, j];
 
                     if(curTile.Type == TileType.Opened && (curTile.G > tile.G + curTile.CalculateG(tile)))
                     {
@@ -48,12 +42,12 @@ namespace AStarRaylib.Pathfinders
                         continue;
                     }
 
-                    if (curTile.Type == TileType.Obstacle || curTile.Type == TileType.Closed || curTile.Type == TileType.Start)
+                    if (curTile.Type == TileType.Obstacle || curTile.Type == TileType.Closed || curTile.Type == TileType.Opened)
                     {
                         continue;
                     }
 
-                    //Checking if it is a diagonal move and is valid
+                    //Checking if it is a diagonal move and if it is a obstacle
                     if ((i < x || i > x) && (j < y || j > y))
                     {
                         if (j > y)

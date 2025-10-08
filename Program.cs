@@ -11,7 +11,7 @@ namespace AStarRaylib
         public static bool DebugMode = true;
 
         // 0 for instant pathfinding
-        const int DEBUG_FRAMES = 60;
+        const int DEBUG_FRAMES = 5;
         static int FrameTimer = 0;
 
         const float DEBUG_LINE_SIZE = 4;
@@ -108,6 +108,16 @@ namespace AStarRaylib
                 }
             }
 
+            for (int y = 1; y <= SCREEN_Y; y++)
+            {
+                DrawLine(0, y * SQR_PIXEL_SIZE, SCREEN_X * SQR_PIXEL_SIZE, y * SQR_PIXEL_SIZE, Color.White);
+            }
+
+            for (int x = 1; x <= SCREEN_X; x++)
+            {
+                DrawLine(x * SQR_PIXEL_SIZE, 0 , x * SQR_PIXEL_SIZE, SCREEN_Y * SQR_PIXEL_SIZE, Color.White);
+            }
+
             if (ThePath.Count > 0)
             {
                 DrawPath(ThePath);
@@ -139,11 +149,6 @@ namespace AStarRaylib
                     Tiles[x, y] = new Tile(new Vector2(x, y), TileType.Unopened);
                 }
             }
-
-            Tiles[(int)StartPos.X, (int)StartPos.Y].Type = TileType.Start;
-            Tiles[(int)StartPos.X, (int)StartPos.Y].CalculateValues(EndPos);
-
-            Tiles[(int)EndPos.X, (int)EndPos.Y].Type = TileType.Goal;
 
             FrameTimer = 0;
             ThePath = new List<Vector2>();

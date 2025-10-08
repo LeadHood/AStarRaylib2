@@ -9,8 +9,6 @@ namespace AStarRaylib
         Opened, 
         Closed, 
         Obstacle,
-        Start,
-        Goal
     }
 
     class Tile
@@ -51,7 +49,13 @@ namespace AStarRaylib
 
         public void CalculateValues(Vector2 endPos)
         {
-            if(Parent == null)
+            if(Position.Equals(new Vector2(4, 3)))
+            {
+                Console.WriteLine($"{Parent.G}");
+                Console.WriteLine($"{CalculateG(Parent)}");
+            }
+
+            if (Parent == null)
             {
                 G = 0;
             }
@@ -80,7 +84,9 @@ namespace AStarRaylib
 
         public void Draw()
         {
-            DrawRectangle((int)Position.X * Program.SQR_PIXEL_SIZE, (int)Position.Y * Program.SQR_PIXEL_SIZE, Program.SQR_PIXEL_SIZE, Program.SQR_PIXEL_SIZE, ColorMapper.GetColorByTileType(this.Type));
+            Raylib_cs.Color col = (Position.Equals(new Vector2(4, 3))) ? Raylib_cs.Color.Gray : ColorMapper.GetColorByTileType(this.Type);
+
+            DrawRectangle((int)Position.X * Program.SQR_PIXEL_SIZE, (int)Position.Y * Program.SQR_PIXEL_SIZE, Program.SQR_PIXEL_SIZE, Program.SQR_PIXEL_SIZE, col);
 
             if (!Program.DebugMode || Type == TileType.Unopened)
             {
