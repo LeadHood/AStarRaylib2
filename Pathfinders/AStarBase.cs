@@ -35,10 +35,11 @@ namespace AStarRaylib.Pathfinders
 
                     Tile curTile = tiles[i, j];
 
-                    if(curTile.Type == TileType.Opened && (curTile.G > tile.G + curTile.CalculateG(tile)))
+                    if((curTile.Type == TileType.Opened /*|| curTile.Type == TileType.Closed*/)&& (curTile.G > tile.G + curTile.GetG(tile)))
                     {
+                        Console.WriteLine("Did the thing");
                         curTile.Parent = tile;
-                        curTile.G = curTile.CalculateG(tile);
+                        curTile.G = curTile.GetG(tile);
                         continue;
                     }
 
@@ -71,7 +72,8 @@ namespace AStarRaylib.Pathfinders
                     //Setting it open
                     curTile.Type = TileType.Opened;
                     curTile.Parent = tile;
-                    curTile.CalculateValues(endPos);
+                    curTile.G = curTile.GetG(tile);
+                    curTile.CalculateH(endPos);
                 }
             }
 

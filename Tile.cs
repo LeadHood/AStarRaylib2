@@ -47,22 +47,22 @@ namespace AStarRaylib
             return positions;
         }
 
-        public void CalculateValues(Vector2 endPos)
+        public void CalculateH(Vector2 endPos)
         {
-            if(Position.Equals(new Vector2(4, 3)))
-            {
-                Console.WriteLine($"{Parent.G}");
-                Console.WriteLine($"{CalculateG(Parent)}");
-            }
+            //if(Position.Equals(new Vector2(4, 3)))
+            //{
+            //    Console.WriteLine($"{Parent.G}");
+            //    Console.WriteLine($"{CalculateG(Parent)}");
+            //}
 
-            if (Parent == null)
-            {
-                G = 0;
-            }
-            else
-            {
-                G = CalculateG(Parent);
-            }
+            //if (Parent == null)
+            //{
+            //    G = 0;
+            //}
+            //else
+            //{
+            //    G = CalculateG(Parent);
+            //}
 
             //Calculate H
             int xDiff = (int)Math.Abs(endPos.X - Position.X);
@@ -70,7 +70,7 @@ namespace AStarRaylib
             H = xDiff * 10 + yDiff * 10;
         }
 
-        public int CalculateG(Tile parent)
+        public int GetG(Tile parent)
         {
             int x = (int)Math.Abs(Position.X - parent.Position.X);
             int y = (int)Math.Abs(Position.Y - parent.Position.Y);
@@ -84,9 +84,10 @@ namespace AStarRaylib
 
         public void Draw()
         {
-            Raylib_cs.Color col = (Position.Equals(new Vector2(4, 3))) ? Raylib_cs.Color.Gray : ColorMapper.GetColorByTileType(this.Type);
+            //Debugcolor
+            //Raylib_cs.Color col = (Position.Equals(new Vector2(4, 3))) ? Raylib_cs.Color.Gray : ColorMapper.GetColorByTileType(this.Type);
 
-            DrawRectangle((int)Position.X * Program.SQR_PIXEL_SIZE, (int)Position.Y * Program.SQR_PIXEL_SIZE, Program.SQR_PIXEL_SIZE, Program.SQR_PIXEL_SIZE, col);
+            DrawRectangle((int)Position.X * Program.SQR_PIXEL_SIZE, (int)Position.Y * Program.SQR_PIXEL_SIZE, Program.SQR_PIXEL_SIZE, Program.SQR_PIXEL_SIZE, ColorMapper.GetColorByTileType(this.Type));
 
             if (!Program.DebugMode || Type == TileType.Unopened)
             {
