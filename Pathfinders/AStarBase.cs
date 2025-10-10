@@ -35,9 +35,8 @@ namespace AStarRaylib.Pathfinders
 
                     Tile curTile = tiles[i, j];
 
-                    if((curTile.Type == TileType.Opened /*|| curTile.Type == TileType.Closed*/)&& (curTile.G > tile.G + curTile.GetG(tile)))
+                    if(curTile.Type == TileType.Opened && (curTile.G > curTile.GetG(tile)))
                     {
-                        Console.WriteLine("Did the thing");
                         curTile.Parent = tile;
                         curTile.G = curTile.GetG(tile);
                         continue;
@@ -89,7 +88,15 @@ namespace AStarRaylib.Pathfinders
             }
 
             //Using linq to find lowest F
-            return tiles.Cast<Tile>().Where(tile => tile.Type == TileType.Opened).OrderBy(tile => tile.F).First();
+
+            var fTiles = tiles.Cast<Tile>().Where(tile => tile.Type == TileType.Opened).OrderBy(tile => tile.F);
+
+            if(fTiles.Count() == 0)
+            {
+
+            }
+
+            return fTiles.First();
         }
 
         public void ResetBrain()
