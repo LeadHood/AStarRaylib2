@@ -11,7 +11,7 @@ namespace AStarRaylib
         public static bool DebugMode = true;
 
         // 0 for instant pathfinding
-        const int DEBUG_FRAMES = 0;
+        static int DebugFrames = 1;
         static int FrameTimer = 0;
 
         const float DEBUG_LINE_SIZE = 4;
@@ -24,13 +24,17 @@ namespace AStarRaylib
         const int SCREEN_Y = 15;
 
         static Vector2 StartPos = new Vector2(1, 1);
-        static Vector2 EndPos = new Vector2(19, 10);
+        public static Vector2 EndPos = new Vector2(19, 10);
 
         static IPathFinder CurrentPathFinder = new Pathfinders.AStarBase();
         static List<Vector2> ThePath = new List<Vector2>();
+        static List<Vector2> DebugPath = new List<Vector2>();
+
         static List<Vector2> ObstaclePositions = new List<Vector2>();
 
         static Tile[,] Tiles = new Tile[SCREEN_X, SCREEN_Y];
+
+        static bool Erasing = false;
 
         static void Main(string[] args)
         {
@@ -56,16 +60,16 @@ namespace AStarRaylib
 
         static void Update()
         {
-            if (IsMouseButtonPressed(MouseButton.Left))
+            if (IsMouseButtonDown(MouseButton.Left))
             {
                 Vector2 mousePos = GetMousePosition();
                 Vector2 mouseTilePos = new Vector2((int)mousePos.X/SQR_PIXEL_SIZE, (int)mousePos.Y / SQR_PIXEL_SIZE);
 
-                if (!ObstaclePositions.Exists(vec => vec.X == (int)mouseTilePos.X && vec.Y == (int)mouseTilePos.Y))
+                if (!ObstaclePositions.Exists(vec => vec.X == (int)mouseTilePos.X && vec.Y == (int)mouseTilePos.Y) && !Erasing)
                 {
                     ObstaclePositions.Add(mouseTilePos);
                 }
-                else 
+                else if(Erasing)
                 {
                     ObstaclePositions.Remove(mouseTilePos);
                 }
@@ -73,7 +77,30 @@ namespace AStarRaylib
                 Reset();
             }
 
-            if(FrameTimer >= DEBUG_FRAMES)
+            if (IsKeyPressed(KeyboardKey.E))
+            {
+                Erasing = !Erasing;
+            }
+
+            if (IsKeyPressed(KeyboardKey.R))
+            {
+                Reset();
+                ObstaclePositions.Clear();
+            }
+
+            //Instant pathfinding
+            if(DebugFrames == 0)
+            {
+                while(!CurrentPathFinder.FoundPath && (Tiles.Cast<Tile>().Where(tile => tile.Type == TileType.Opened).Any() || CurrentPathFinder.FirstIteration))
+                {
+                    IterationForAlgoritm();
+                }
+
+                return;
+            }
+
+            //Debugging pathfinding
+            if (FrameTimer >= DebugFrames)
             {
                 FrameTimer = 0;
 
@@ -82,17 +109,31 @@ namespace AStarRaylib
                     return;
                 }
 
-                Tile chosenTile = CurrentPathFinder.ChooseLowestF(Tiles, StartPos);
-                Tile? endingTile = CurrentPathFinder.IterationForTile(chosenTile, Tiles, StartPos, EndPos);
-
-                if(endingTile != null)
-                {
-                    CurrentPathFinder.FoundPath = true;
-                    ThePath = endingTile.GetPath();
-                }
+                IterationForAlgoritm();
             }
 
             FrameTimer++;
+        }
+
+        static void IterationForAlgoritm()
+        {
+            Tile? chosenTile = CurrentPathFinder.ChooseLowestF(Tiles, StartPos);
+
+            if (chosenTile == null)
+            {
+                return;
+            }
+
+            Tile? endingTile = CurrentPathFinder.IterationForTile(chosenTile, Tiles, StartPos, EndPos);
+
+            if (endingTile != null)
+            {
+                CurrentPathFinder.FoundPath = true;
+                ThePath = endingTile.GetPath();
+                DebugPath = ThePath.ToList();
+
+                ThePath = CurrentPathFinder.EnhancePath(ThePath, Tiles);
+            }
         }
 
         static void Draw()
@@ -108,6 +149,21 @@ namespace AStarRaylib
                 }
             }
 
+            DrawText("Erasing: "  + Erasing, 10, SQR_PIXEL_SIZE * SCREEN_Y - 24, 24, Color.White);
+
+            DrawGrid();
+
+            if (ThePath.Count > 0)
+            {
+                DrawPath(DebugPath, Color.Purple);
+                DrawPath(ThePath);
+            }
+
+            EndDrawing();
+        }
+
+        static void DrawGrid()
+        {
             for (int y = 1; y <= SCREEN_Y; y++)
             {
                 DrawLine(0, y * SQR_PIXEL_SIZE, SCREEN_X * SQR_PIXEL_SIZE, y * SQR_PIXEL_SIZE, Color.White);
@@ -115,15 +171,8 @@ namespace AStarRaylib
 
             for (int x = 1; x <= SCREEN_X; x++)
             {
-                DrawLine(x * SQR_PIXEL_SIZE, 0 , x * SQR_PIXEL_SIZE, SCREEN_Y * SQR_PIXEL_SIZE, Color.White);
+                DrawLine(x * SQR_PIXEL_SIZE, 0, x * SQR_PIXEL_SIZE, SCREEN_Y * SQR_PIXEL_SIZE, Color.White);
             }
-
-            if (ThePath.Count > 0)
-            {
-                DrawPath(ThePath);
-            }
-
-            EndDrawing();
         }
 
         static void DrawPath(List<Vector2> positions)
@@ -131,6 +180,14 @@ namespace AStarRaylib
             for (int i = 0; i < positions.Count - 1; i++)
             {
                 DrawLineEx(SQR_PIXEL_SIZE * new Vector2(positions[i].X + 0.5f, positions[i].Y + 0.5f), SQR_PIXEL_SIZE * new Vector2(positions[i + 1].X + 0.5f, positions[i + 1].Y + 0.5f), DEBUG_LINE_SIZE, ColorMapper.DebugLineColor);
+            }
+        }
+
+        static void DrawPath(List<Vector2> positions, Color color)
+        {
+            for (int i = 0; i < positions.Count - 1; i++)
+            {
+                DrawLineEx(SQR_PIXEL_SIZE * new Vector2(positions[i].X + 0.5f, positions[i].Y + 0.5f), SQR_PIXEL_SIZE * new Vector2(positions[i + 1].X + 0.5f, positions[i + 1].Y + 0.5f), DEBUG_LINE_SIZE, color);
             }
         }
 
@@ -152,6 +209,7 @@ namespace AStarRaylib
 
             FrameTimer = 0;
             ThePath = new List<Vector2>();
+            DebugPath = new List<Vector2>();
             CurrentPathFinder.ResetBrain();
         }
     }

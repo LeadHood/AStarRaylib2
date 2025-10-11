@@ -12,7 +12,9 @@ namespace AStarRaylib
 
         Tile? IterationForTile(Tile tile, Tile[,] tiles, Vector2 startPos, Vector2 endPos);
 
-        Tile ChooseLowestF(Tile[,] tiles, Vector2 startpos);
+        Tile? ChooseLowestF(Tile[,] tiles, Vector2 startpos);
+
+        List<Vector2> EnhancePath(List<Vector2> path, Tile[,] tiles);
 
         void ResetBrain();
     }

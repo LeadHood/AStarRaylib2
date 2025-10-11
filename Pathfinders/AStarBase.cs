@@ -48,23 +48,11 @@ namespace AStarRaylib.Pathfinders
                     }
 
                     //Checking if it is a diagonal move and if it is a obstacle
-                    if ((i < x || i > x) && (j < y || j > y))
-                    {
-                        if (j > y)
+                    if (i != x && j != y)
+                    { 
+                        if (tiles[x, j].Type == TileType.Obstacle || tiles[i, y].Type == TileType.Obstacle)
                         {
-                            if (tiles[x, y + 1].Type == TileType.Obstacle) { continue; }
-                        }
-                        else
-                        {
-                            if (tiles[x, y - 1].Type == TileType.Obstacle) { continue; }
-                        }
-                        if (i > x)
-                        {
-                            if (tiles[x + 1, y].Type == TileType.Obstacle) { continue; }
-                        }
-                        else
-                        {
-                            if (tiles[x - 1, y].Type == TileType.Obstacle) { continue; }
+                            continue;
                         }
                     }
 
@@ -79,7 +67,7 @@ namespace AStarRaylib.Pathfinders
             return null;
         }
 
-        public Tile ChooseLowestF(Tile[,] tiles, Vector2 startPos)
+        public Tile? ChooseLowestF(Tile[,] tiles, Vector2 startPos)
         {
             if (FirstIteration == true)
             {
@@ -88,16 +76,55 @@ namespace AStarRaylib.Pathfinders
             }
 
             //Using linq to find lowest F
-
             var fTiles = tiles.Cast<Tile>().Where(tile => tile.Type == TileType.Opened).OrderBy(tile => tile.F);
 
-            if(fTiles.Count() == 0)
+            if(!fTiles.Any())
             {
-
+                return null;
             }
 
             return fTiles.First();
         }
+
+        public List<Vector2> EnhancePath(List<Vector2> path, Tile[,] tiles)
+        {
+            List<Vector2> newPath = [.. path];
+
+            int index = 0;
+
+            foreach (Vector2 pos in path)
+            {
+                if (index == 0 || index == path.Count - 1)
+                {
+                    goto End;
+                }
+
+                for (int j = (int)pos.Y - 1; j < (int)pos.Y + 2; j++)
+                {
+                    for (int i = (int)pos.X - 1; i < (int)pos.X + 2; i++)
+                    {
+                        if (i < 0 || i >= tiles.GetLength(0) || j < 0 || j >= tiles.GetLength(1))
+                        {
+                            continue;
+                        }
+
+                        if (i != pos.X && j != pos.X && tiles[i, j].Type == TileType.Obstacle)
+                        {
+                            goto End;
+                        }
+                    }
+                }
+
+                newPath.Remove(pos);
+
+            End:
+                index++;
+                continue;
+            }
+
+            return newPath;
+        }
+
 
         public void ResetBrain()
         {
