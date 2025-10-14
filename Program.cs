@@ -3,6 +3,7 @@ using static Raylib_cs.Raylib;
 using Raylib_cs;
 using System.Numerics;
 using System.Linq;
+using System.Diagnostics;
 
 namespace AStarRaylib
 {
@@ -11,7 +12,7 @@ namespace AStarRaylib
         public static bool DebugMode = true;
 
         // 0 for instant pathfinding
-        static int DebugFrames = 1;
+        static int DebugFrames = 0;
         static int FrameTimer = 0;
 
         const float DEBUG_LINE_SIZE = 4;
@@ -35,6 +36,7 @@ namespace AStarRaylib
         static Tile[,] Tiles = new Tile[SCREEN_X, SCREEN_Y];
 
         static bool Erasing = false;
+        static double elapsedMilliseconds = 0;
 
         static void Main(string[] args)
         {
@@ -60,6 +62,7 @@ namespace AStarRaylib
 
         static void Update()
         {
+            //Input
             if (IsMouseButtonDown(MouseButton.Left))
             {
                 Vector2 mousePos = GetMousePosition();
@@ -84,17 +87,28 @@ namespace AStarRaylib
 
             if (IsKeyPressed(KeyboardKey.R))
             {
-                Reset();
                 ObstaclePositions.Clear();
+                Reset();
             }
 
             //Instant pathfinding
             if(DebugFrames == 0)
             {
+                if (CurrentPathFinder.FoundPath)
+                {
+                    return;
+                }
+
+                Stopwatch stopwatch = new Stopwatch();
+                stopwatch.Start();
+
                 while(!CurrentPathFinder.FoundPath && (Tiles.Cast<Tile>().Where(tile => tile.Type == TileType.Opened).Any() || CurrentPathFinder.FirstIteration))
                 {
                     IterationForAlgoritm();
                 }
+
+                stopwatch.Stop();
+                elapsedMilliseconds = stopwatch.Elapsed.TotalMilliseconds;
 
                 return;
             }
@@ -149,7 +163,9 @@ namespace AStarRaylib
                 }
             }
 
-            DrawText("Erasing: "  + Erasing, 10, SQR_PIXEL_SIZE * SCREEN_Y - 24, 24, Color.White);
+            DrawText("Tool: "  + (Erasing ? "Eraser" : "Brush"), 10, SQR_PIXEL_SIZE * SCREEN_Y - 24, 24, Color.White);
+            DrawText("Ellapsed time: " + elapsedMilliseconds, SQR_PIXEL_SIZE * SCREEN_X - 500, SQR_PIXEL_SIZE * SCREEN_Y - 24, 24, Color.White);
+
 
             DrawGrid();
 
@@ -198,7 +214,7 @@ namespace AStarRaylib
                 for (int x = 0; x < Tiles.GetLength(0); x++)
                 {
                     if(ObstaclePositions.Exists(vec => (int)vec.X == x && (int)vec.Y == y))
-                    {
+                    {   
                         Tiles[x, y] = new Tile(new Vector2(x, y), TileType.Obstacle);
                         continue;
                     }
