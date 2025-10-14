@@ -11,7 +11,7 @@ namespace AStarRaylib
         Obstacle,
     }
 
-    class Tile
+    internal class Tile
     {
         public Vector2 Position { get; private set; }
 
@@ -47,25 +47,11 @@ namespace AStarRaylib
             return positions;
         }
 
-        public void CalculateH(Vector2 endPos)
+        public void SetValues()
         {
-            //Calculate H
-            int xDiff = (int)Math.Abs(endPos.X - Position.X);
-            int yDiff = (int)Math.Abs(endPos.Y - Position.Y);
-            H = xDiff * 10 + yDiff * 10;
+            G = HelpMethods.CalculateG(this, Parent);
+            H = HelpMethods.CalculateH(this, Program.EndPos);
         }
-
-        public int GetG(Tile parent)
-        {
-            int x = (int)Math.Abs(Position.X - parent.Position.X);
-            int y = (int)Math.Abs(Position.Y - parent.Position.Y);
-
-            if (x == 1 && y == 1)
-                return parent.G + 14; 
-            else
-                return parent.G + 10; 
-        }
-
 
         public void Draw()
         {
