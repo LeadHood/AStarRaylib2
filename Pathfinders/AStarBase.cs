@@ -10,6 +10,7 @@ namespace AStarRaylib.Pathfinders
     {
         public bool FirstIteration { get; private set; } = true;
         public bool FoundPath { get; set; } = false;
+        public List<Tile> OpenedTiles { get ; set;} = new List<Tile>();
 
         public Tile? IterationForTile(Tile tile, Tile[,] tiles, Vector2 startPos, Vector2 endPos)
         {
@@ -36,10 +37,12 @@ namespace AStarRaylib.Pathfinders
 
                     Tile curTile = tiles[i, j];
 
-                    if(curTile.Type == TileType.Opened && (curTile.G > HelpMethods.CalculateG(curTile, tile)))
+
+                    int newG = HelpMethods.CalculateG(curTile, tile);
+                    if (curTile.Type == TileType.Opened && (curTile.G > newG))
                     {
                         curTile.Parent = tile;
-                        curTile.G = HelpMethods.CalculateG(curTile, tile);
+                        curTile.G = newG;
                         continue;
                     }
 
@@ -49,18 +52,17 @@ namespace AStarRaylib.Pathfinders
                     }
 
                     //Checking if it is a diagonal move and if it is a obstacle
-                    if (i != x && j != y)
+                    if (i != x && j != y && (tiles[x, j].Type == TileType.Obstacle || tiles[i, y].Type == TileType.Obstacle))
                     { 
-                        if (tiles[x, j].Type == TileType.Obstacle || tiles[i, y].Type == TileType.Obstacle)
-                        {
-                            continue;
-                        }
+                        continue;
                     }
 
                     //Setting it open
                     curTile.Type = TileType.Opened;
                     curTile.Parent = tile;
                     curTile.SetValues();
+
+                    OpenedTiles.Add(curTile);
                 }
             }
 
@@ -75,15 +77,16 @@ namespace AStarRaylib.Pathfinders
                 return tiles[(int)startPos.X, (int)startPos.Y];
             }
 
-            //Using linq to find lowest F
-            var fTiles = tiles.Cast<Tile>().Where(tile => tile.Type == TileType.Opened).OrderBy(tile => tile.F);
+            Tile? returnTile = OpenedTiles.MinBy(tile => tile.F);
 
-            if(!fTiles.Any())
+            if (returnTile == null)
             {
                 return null;
             }
 
-            return fTiles.First();
+            OpenedTiles.Remove(returnTile);
+
+            return returnTile;
         }
 
         public List<Vector2> EnhancePath(List<Vector2> path, Tile[,] tiles)
@@ -94,31 +97,52 @@ namespace AStarRaylib.Pathfinders
 
             foreach (Vector2 pos in path)
             {
+                //First and last pos is static
                 if (index == 0 || index == path.Count - 1)
                 {
-                    goto End;
+                    index++;
+                    continue;
                 }
+
+                bool isCorner = false;
 
                 for (int j = (int)pos.Y - 1; j < (int)pos.Y + 2; j++)
                 {
                     for (int i = (int)pos.X - 1; i < (int)pos.X + 2; i++)
                     {
+                        //if it Is outside then continue
                         if (i < 0 || i >= tiles.GetLength(0) || j < 0 || j >= tiles.GetLength(1))
                         {
                             continue;
                         }
 
+                        //Diagnoally is obstacle, then End, it is a corner tile
                         if (i != pos.X && j != pos.X && tiles[i, j].Type == TileType.Obstacle)
                         {
-                            goto End;
+                            Tile neighbour1 = tiles[i, (int)pos.Y];
+                            Tile neighbour2 = tiles[(int)pos.X, j];
+
+                            if(!(neighbour1.Type == TileType.Obstacle) && !(neighbour2.Type == TileType.Obstacle))
+                            { 
+                                isCorner = true;
+                                break;
+                            }
                         }
+                    }
+
+                    if (isCorner)
+                    {
+                        break;
                     }
                 }
 
-                newPath.Remove(pos);
+                if (!isCorner)
+                {
+                    newPath.Remove(pos);
+                }
 
-            End:
                 index++;
+
                 continue;
             }
 
@@ -130,6 +154,7 @@ namespace AStarRaylib.Pathfinders
         {
             FirstIteration = true;
             FoundPath = false;
+            OpenedTiles.Clear();
         }
     }
 }

@@ -10,12 +10,20 @@ namespace AStarRaylib
     internal static class HelpMethods
     {
 
-        public static int CalculateH(Tile tile, Vector2 endPos)
+        public static int CalculateHManhattan(Tile tile, Vector2 endPos)
         {
             //Calculate H
             int xDiff = (int)Math.Abs(endPos.X - tile.Position.X);
             int yDiff = (int)Math.Abs(endPos.Y - tile.Position.Y);
             return xDiff * 10 + yDiff * 10;
+        }
+
+        public static int CalculateHPythagoras(Tile tile, Vector2 endPos)
+        {
+            //Calculate H
+            int xDiff = (int)Math.Abs(endPos.X - tile.Position.X);
+            int yDiff = (int)Math.Abs(endPos.Y - tile.Position.Y);
+            return (int)Math.Sqrt(xDiff * xDiff + yDiff * yDiff) * 10;
         }
 
         public static int CalculateG(Tile tile, Tile? parent)

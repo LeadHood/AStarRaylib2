@@ -17,20 +17,21 @@ namespace AStarRaylib
 
         const float DEBUG_LINE_SIZE = 4;
 
-        public const int SQR_PIXEL_SIZE = 60;
+        public const int SQR_PIXEL_SIZE = 60/2;
         public const int TEXT_OFFSET = 2;
         public const int FONT_SIZE = 18;
 
-        const int SCREEN_X = 20;
-        const int SCREEN_Y = 15;
+        const int SCREEN_X = 20 * 2;
+        const int SCREEN_Y = 15 * 2;
 
-        static Vector2 StartPos = new Vector2(1, 1);
-        public static Vector2 EndPos = new Vector2(19, 10);
+        static Vector2 StartPos = new Vector2(1, 9);
+        //public static Vector2 EndPos = new Vector2(19, 10);
+        public static Vector2 EndPos = new Vector2(39, 29);
+
 
         static IPathFinder CurrentPathFinder = new Pathfinders.AStarBase();
         static List<Vector2> ThePath = new List<Vector2>();
         static List<Vector2> DebugPath = new List<Vector2>();
-
         static List<Vector2> ObstaclePositions = new List<Vector2>();
 
         static Tile[,] Tiles = new Tile[SCREEN_X, SCREEN_Y];
@@ -164,7 +165,7 @@ namespace AStarRaylib
             }
 
             DrawText("Tool: "  + (Erasing ? "Eraser" : "Brush"), 10, SQR_PIXEL_SIZE * SCREEN_Y - 24, 24, Color.White);
-            DrawText("Ellapsed time: " + elapsedMilliseconds, SQR_PIXEL_SIZE * SCREEN_X - 500, SQR_PIXEL_SIZE * SCREEN_Y - 24, 24, Color.White);
+            DrawText("Elapsed time: " + elapsedMilliseconds + " ms", SQR_PIXEL_SIZE * SCREEN_X - 500, SQR_PIXEL_SIZE * SCREEN_Y - 24, 24, Color.White);
 
 
             DrawGrid();
