@@ -37,10 +37,17 @@ namespace AStarRaylib.Pathfinders
 
                     Tile curTile = tiles[i, j];
 
-
                     int newG = HelpMethods.CalculateG(curTile, tile);
                     if (curTile.Type == TileType.Opened && (curTile.G > newG))
                     {
+                        Tile neighbour1 = tiles[i, (int)curTile.Position.Y];
+                        Tile neighbour2 = tiles[(int)curTile.Position.X, j];
+
+                        if (i != x && j != y && !(neighbour1.Type == TileType.Obstacle) && !(neighbour2.Type == TileType.Obstacle))
+                        {
+                            continue;
+                        }
+
                         curTile.Parent = tile;
                         curTile.G = newG;
                         continue;

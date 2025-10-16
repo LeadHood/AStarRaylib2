@@ -49,8 +49,8 @@ namespace AStarRaylib
 
         public void SetValues()
         {
-            G = HelpMethods.CalculateG(this, Parent);
-            H = HelpMethods.CalculateHPythagoras(this, Program.EndPos);
+            G = HelpMethods.CalculateG(this, Parent);//HelpMethods.CalculateG(this, Parent);
+            H = HelpMethods.CalculateHMinMax(this, Program.EndPos);
         }
 
         public void Draw()
