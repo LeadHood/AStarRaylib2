@@ -53,13 +53,13 @@ namespace AStarRaylib
             InitWindow(SCREEN_X * SQR_PIXEL_SIZE, SCREEN_Y * SQR_PIXEL_SIZE, "ASTAR");
             SetTargetFPS(60);
 
-            //Agents.Add(new Agent(new Pathfinders.AStarBase(), new Vector2(1, 7)));
-            //Agents.Add(new Agent(new Pathfinders.AStarBase(), StartPos));
-            //Agents.Add(new Agent(new Pathfinders.AStarBase(), new Vector2(4, 6)));
+            //Agents.Add(new Agent(new Pathfinders.AStarOptimized(), new Vector2(1, 7)));
+            //Agents.Add(new Agent(new Pathfinders.AStarOptimized(), StartPos));
+            //Agents.Add(new Agent(new Pathfinders.AStarOptimized(), new Vector2(4, 6)));
 
-            for (int x = 0; x < SCREEN_X; x++)
+            for (int x = 0; x < SCREEN_Y; x++)
             {
-                    Agents.Add(new Agent(new Pathfinders.AStarBase(), new Vector2(x, 0)));
+                Agents.Add(new Agent(new Pathfinders.AStarOptimized(), new Vector2(0, x)));
             }
 
 
@@ -121,14 +121,15 @@ namespace AStarRaylib
 
         static void RunAgents()
         {
-            foreach (Agent agent in Agents)
+            Stopwatch stopwatch = new Stopwatch();
+
+            Parallel.ForEach(Agents, agent =>
             {
                 if (agent.Pathfinder.FoundPath)
                 {
-                    continue;
+                    return;
                 }
 
-                Stopwatch stopwatch = new Stopwatch();
                 stopwatch.Start();
 
                 while (!agent.Pathfinder.FoundPath && (agent.Tiles.Cast<Tile>().Where(tile => tile.Type == TileType.Opened).Any() || agent.Pathfinder.FirstIteration))
@@ -136,10 +137,16 @@ namespace AStarRaylib
                     IterationForAlgoritm(agent);
                 }
 
-                stopwatch.Stop();
-                elapsedMilliseconds = stopwatch.Elapsed.TotalMilliseconds;
 
-                continue;
+                return;
+            });
+
+            stopwatch.Stop();
+
+
+            if(stopwatch.Elapsed.TotalMilliseconds != 0)
+            {
+                elapsedMilliseconds = stopwatch.Elapsed.TotalMilliseconds;
             }
         }
 
