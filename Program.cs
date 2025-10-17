@@ -25,11 +25,9 @@ namespace AStarRaylib
         const int SCREEN_Y = 15 * 2;
 
         static Vector2 StartPos = new Vector2(1, 9);
-        //public static Vector2 EndPos = new Vector2(19, 10);
         public static Vector2 EndPos = new Vector2(39, 29);
 
-
-        static IPathFinder CurrentPathFinder = new Pathfinders.AStarBase();
+        static IPathFinder CurrentPathFinder = new Pathfinders.AStarOptimized();
         static List<Vector2> ThePath = new List<Vector2>();
         static List<Vector2> DebugPath = new List<Vector2>();
         static List<Vector2> ObstaclePositions = new List<Vector2>();

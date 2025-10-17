@@ -11,7 +11,6 @@ namespace AStarRaylib
         bool FoundPath { get; set; }
         List<Tile> OpenedTiles { get; set; }
 
-
         Tile? IterationForTile(Tile tile, Tile[,] tiles, Vector2 startPos, Vector2 endPos);
 
         Tile? ChooseLowestF(Tile[,] tiles, Vector2 startpos);
