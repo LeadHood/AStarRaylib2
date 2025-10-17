@@ -21,18 +21,15 @@ namespace AStarRaylib
         public const int TEXT_OFFSET = 2;
         public const int FONT_SIZE = 18;
 
-        const int SCREEN_X = 20 * 2;
-        const int SCREEN_Y = 15 * 2;
+        public const int SCREEN_X = 20 * 2;
+        public const int SCREEN_Y = 15 * 2;
 
         static Vector2 StartPos = new Vector2(1, 9);
         public static Vector2 EndPos = new Vector2(39, 29);
 
-        static IPathFinder CurrentPathFinder = new Pathfinders.AStarOptimized();
-        static List<Vector2> ThePath = new List<Vector2>();
-        static List<Vector2> DebugPath = new List<Vector2>();
-        static List<Vector2> ObstaclePositions = new List<Vector2>();
+        static List<Agent> Agents = new List<Agent>();
 
-        static Tile[,] Tiles = new Tile[SCREEN_X, SCREEN_Y];
+        public static List<Vector2> ObstaclePositions { get; private set; } = new List<Vector2>();
 
         static bool Erasing = false;
         static double elapsedMilliseconds = 0;
@@ -55,6 +52,16 @@ namespace AStarRaylib
 
             InitWindow(SCREEN_X * SQR_PIXEL_SIZE, SCREEN_Y * SQR_PIXEL_SIZE, "ASTAR");
             SetTargetFPS(60);
+
+            //Agents.Add(new Agent(new Pathfinders.AStarBase(), new Vector2(1, 7)));
+            //Agents.Add(new Agent(new Pathfinders.AStarBase(), StartPos));
+            //Agents.Add(new Agent(new Pathfinders.AStarBase(), new Vector2(4, 6)));
+
+            for (int x = 0; x < SCREEN_X; x++)
+            {
+                    Agents.Add(new Agent(new Pathfinders.AStarBase(), new Vector2(x, 0)));
+            }
+
 
             Reset();
         }
@@ -93,59 +100,65 @@ namespace AStarRaylib
             //Instant pathfinding
             if(DebugFrames == 0)
             {
-                if (CurrentPathFinder.FoundPath)
+                RunAgents();
+            }
+
+            //Debugging pathfinding
+            //if (FrameTimer >= DebugFrames)
+            //{
+            //    FrameTimer = 0;
+
+            //    if (CurrentPathFinder.FoundPath)
+            //    {
+            //        return;
+            //    }
+
+            //    IterationForAlgoritm();
+            //}
+
+            //FrameTimer++;
+        }
+
+        static void RunAgents()
+        {
+            foreach (Agent agent in Agents)
+            {
+                if (agent.Pathfinder.FoundPath)
                 {
-                    return;
+                    continue;
                 }
 
                 Stopwatch stopwatch = new Stopwatch();
                 stopwatch.Start();
 
-                while(!CurrentPathFinder.FoundPath && (Tiles.Cast<Tile>().Where(tile => tile.Type == TileType.Opened).Any() || CurrentPathFinder.FirstIteration))
+                while (!agent.Pathfinder.FoundPath && (agent.Tiles.Cast<Tile>().Where(tile => tile.Type == TileType.Opened).Any() || agent.Pathfinder.FirstIteration))
                 {
-                    IterationForAlgoritm();
+                    IterationForAlgoritm(agent);
                 }
 
                 stopwatch.Stop();
                 elapsedMilliseconds = stopwatch.Elapsed.TotalMilliseconds;
 
-                return;
+                continue;
             }
-
-            //Debugging pathfinding
-            if (FrameTimer >= DebugFrames)
-            {
-                FrameTimer = 0;
-
-                if (CurrentPathFinder.FoundPath)
-                {
-                    return;
-                }
-
-                IterationForAlgoritm();
-            }
-
-            FrameTimer++;
         }
 
-        static void IterationForAlgoritm()
+        static void IterationForAlgoritm(Agent agent)
         {
-            Tile? chosenTile = CurrentPathFinder.ChooseLowestF(Tiles, StartPos);
+            Tile? chosenTile = agent.Pathfinder.ChooseLowestF(agent.Tiles, agent.StartPos);
 
             if (chosenTile == null)
             {
                 return;
             }
 
-            Tile? endingTile = CurrentPathFinder.IterationForTile(chosenTile, Tiles, StartPos, EndPos);
+            Tile? endingTile = agent.Pathfinder.IterationForTile(chosenTile, agent.Tiles, agent.StartPos, EndPos);
 
             if (endingTile != null)
             {
-                CurrentPathFinder.FoundPath = true;
-                ThePath = endingTile.GetPath();
-                DebugPath = ThePath.ToList();
-
-                ThePath = CurrentPathFinder.EnhancePath(ThePath, Tiles);
+                agent.Pathfinder.FoundPath = true;
+                agent.Path = endingTile.GetPath();
+                agent.Path = agent.Pathfinder.EnhancePath(agent.Path, agent.Tiles);
             }
         }
 
@@ -154,24 +167,17 @@ namespace AStarRaylib
             BeginDrawing();
             ClearBackground(Color.White);
 
-            for (int y = 0; y < Tiles.GetLength(1); y++)
-            {
-                for (int x  = 0; x < Tiles.GetLength(0); x++)
-                {
-                    Tiles[x, y].Draw();
-                }
-            }
+            DrawTiles(Agents[1]);
 
             DrawText("Tool: "  + (Erasing ? "Eraser" : "Brush"), 10, SQR_PIXEL_SIZE * SCREEN_Y - 24, 24, Color.White);
             DrawText("Elapsed time: " + elapsedMilliseconds + " ms", SQR_PIXEL_SIZE * SCREEN_X - 500, SQR_PIXEL_SIZE * SCREEN_Y - 24, 24, Color.White);
 
-
             DrawGrid();
 
-            if (ThePath.Count > 0)
+            foreach (Agent agent in Agents)
             {
-                DrawPath(DebugPath, Color.Purple);
-                DrawPath(ThePath);
+                DrawPath(agent.Path, Color.Red);
+                //agent.Draw();
             }
 
             EndDrawing();
@@ -190,6 +196,17 @@ namespace AStarRaylib
             }
         }
 
+        static void DrawTiles(Agent agent)
+        {
+            for (int y = 0; y < agent.Tiles.GetLength(1); y++)
+            {
+                for (int x = 0; x < agent.Tiles.GetLength(0); x++)
+                {
+                    agent.Tiles[x, y].Draw();
+                }
+            }
+        }
+
         static void DrawPath(List<Vector2> positions)
         {
             for (int i = 0; i < positions.Count - 1; i++)
@@ -200,6 +217,8 @@ namespace AStarRaylib
 
         static void DrawPath(List<Vector2> positions, Color color)
         {
+            //Console.WriteLine(positions.Count);
+
             for (int i = 0; i < positions.Count - 1; i++)
             {
                 DrawLineEx(SQR_PIXEL_SIZE * new Vector2(positions[i].X + 0.5f, positions[i].Y + 0.5f), SQR_PIXEL_SIZE * new Vector2(positions[i + 1].X + 0.5f, positions[i + 1].Y + 0.5f), DEBUG_LINE_SIZE, color);
@@ -208,24 +227,12 @@ namespace AStarRaylib
 
         static void Reset()
         {
-            for (int y = 0; y < Tiles.GetLength(1); y++)
-            {
-                for (int x = 0; x < Tiles.GetLength(0); x++)
-                {
-                    if(ObstaclePositions.Exists(vec => (int)vec.X == x && (int)vec.Y == y))
-                    {   
-                        Tiles[x, y] = new Tile(new Vector2(x, y), TileType.Obstacle);
-                        continue;
-                    }
-
-                    Tiles[x, y] = new Tile(new Vector2(x, y), TileType.Unopened);
-                }
-            }
-
             FrameTimer = 0;
-            ThePath = new List<Vector2>();
-            DebugPath = new List<Vector2>();
-            CurrentPathFinder.ResetBrain();
+            
+            foreach(Agent agent in Agents)
+            {
+                agent.Reset();
+            }
         }
     }
 }
