@@ -25,7 +25,7 @@ namespace AStarRaylib
         public const int SCREEN_Y = 15 * 2;
 
         static Vector2 StartPos = new Vector2(1, 9);
-        public static Vector2 EndPos = new Vector2(39, 29);
+        public static Vector2 EndPos = new Vector2(39, 15);
 
         static List<Agent> Agents = new List<Agent>();
 
@@ -57,11 +57,11 @@ namespace AStarRaylib
             //Agents.Add(new Agent(new Pathfinders.AStarOptimized(), StartPos));
             //Agents.Add(new Agent(new Pathfinders.AStarOptimized(), new Vector2(4, 6)));
 
-            for (int x = 0; x < SCREEN_Y; x++)
+            for (int x = 0; x < 1/*SCREEN_Y*/; x++)
             {
                 Agents.Add(new Agent(new Pathfinders.AStarOptimized(), new Vector2(0, x)));
+                //Agents.Add(new Agent(new Pathfinders.AStarBase(), new Vector2(0, x)));
             }
-
 
             Reset();
         }
@@ -137,7 +137,6 @@ namespace AStarRaylib
                     IterationForAlgoritm(agent);
                 }
 
-
                 return;
             });
 
@@ -172,20 +171,28 @@ namespace AStarRaylib
         static void Draw()
         {
             BeginDrawing();
-            ClearBackground(Color.White);
+            ClearBackground(Color.Black);
 
-            DrawTiles(Agents[1]);
+            foreach (var item in ObstaclePositions)
+            {
+                Tile tile = new Tile(item, TileType.Obstacle);
+                tile.Draw();
+            }
 
-            DrawText("Tool: "  + (Erasing ? "Eraser" : "Brush"), 10, SQR_PIXEL_SIZE * SCREEN_Y - 24, 24, Color.White);
-            DrawText("Elapsed time: " + elapsedMilliseconds + " ms", SQR_PIXEL_SIZE * SCREEN_X - 500, SQR_PIXEL_SIZE * SCREEN_Y - 24, 24, Color.White);
+            DrawTiles(Agents[0]);
 
             DrawGrid();
 
+            int index = 0;
+
             foreach (Agent agent in Agents)
             {
-                DrawPath(agent.Path, Color.Red);
-                //agent.Draw();
+                index++;
+                DrawPath(agent.Path, ColorMapper.ColorsForPaths[index%ColorMapper.ColorsForPaths.Length]);
             }
+
+            DrawText("Tool: " + (Erasing ? "Eraser" : "Brush"), 10, SQR_PIXEL_SIZE * SCREEN_Y - 24, 24, Color.White);
+            DrawText("Elapsed time: " + elapsedMilliseconds + " ms", SQR_PIXEL_SIZE * SCREEN_X - 500, SQR_PIXEL_SIZE * SCREEN_Y - 24, 24, Color.White);
 
             EndDrawing();
         }

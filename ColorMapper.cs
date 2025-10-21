@@ -13,6 +13,20 @@ namespace AStarRaylib
         public static Color OpenedColor = Color.Lime;
         public static Color ClosedColor = Color.Blue;
 
+        public static Color[] ColorsForPaths = new Color[]
+        {
+            Color.Red,
+            Color.Orange,
+            Color.Yellow,
+            Color.Lime,
+            Color.Green,
+            Color.SkyBlue,
+            Color.Blue,
+            Color.Purple,
+            Color.Magenta,
+            Color.Brown
+        };
+
         public static Color GetColorByTileType(TileType tileType)
         {
             Color color = new Color();

@@ -111,42 +111,36 @@ namespace AStarRaylib.Pathfinders
                     continue;
                 }
 
-                bool isCorner = false;
+                bool hitRaycast = HelpMethods.RaycastBetween(tiles, path[index - 1], path[index + 1]);
 
-                for (int j = (int)pos.Y - 1; j < (int)pos.Y + 2; j++)
-                {
-                    for (int i = (int)pos.X - 1; i < (int)pos.X + 2; i++)
-                    {
-                        //if it Is outside then continue
-                        if (i < 0 || i >= tiles.GetLength(0) || j < 0 || j >= tiles.GetLength(1))
-                        {
-                            continue;
-                        }
-
-                        //Diagnoally is obstacle, then End, it is a corner tile
-                        if (i != pos.X && j != pos.Y && tiles[i, j].Type == TileType.Obstacle)
-                        {
-                            Tile neighbour1 = tiles[i, (int)pos.Y];
-                            Tile neighbour2 = tiles[(int)pos.X, j];
-
-                            if(!(neighbour1.Type == TileType.Obstacle) && !(neighbour2.Type == TileType.Obstacle))
-                            { 
-                                isCorner = true;
-                                break;
-                            }
-                        }
-                    }
-
-                    if (isCorner)
-                    {
-                        break;
-                    }
-                }
-
-                if (!isCorner)
+                if (!hitRaycast && !IsCorner(pos, tiles))
                 {
                     newPath.Remove(pos);
                 }
+
+                //if (hitRaycast)
+                //{
+                //    IPathFinder pathFinder = new AStarBase();
+
+                //    while (!pathFinder.FoundPath && (tiles.Cast<Tile>().Where(tile => tile.Type == TileType.Opened).Any() || pathFinder.FirstIteration))
+                //    {
+                //        Tile? chosenTile = pathFinder.ChooseLowestF(tiles, );
+
+                //        if (chosenTile == null)
+                //        {
+                //            return;
+                //        }
+
+                //        Tile? endingTile = agent.Pathfinder.IterationForTile(chosenTile, agent.Tiles, agent.StartPos, EndPos);
+
+                //        if (endingTile != null)
+                //        {
+                //            agent.Pathfinder.FoundPath = true;
+                //            agent.Path = endingTile.GetPath();
+                //            agent.Path = agent.Pathfinder.EnhancePath(agent.Path, agent.Tiles);
+                //        }
+                //    }
+                //}
 
                 index++;
 
@@ -154,6 +148,35 @@ namespace AStarRaylib.Pathfinders
             }
 
             return newPath;
+        }
+
+        private bool IsCorner(Vector2 pos, Tile[,] tiles)
+        {
+            for (int j = (int)pos.Y - 1; j < (int)pos.Y + 2; j++)
+            {
+                for (int i = (int)pos.X - 1; i < (int)pos.X + 2; i++)
+                {
+                    //if it Is outside then continue
+                    if (i < 0 || i >= tiles.GetLength(0) || j < 0 || j >= tiles.GetLength(1))
+                    {
+                        continue;
+                    }
+
+                    //Diagnoally is obstacle, then End, it is a corner tile
+                    if (i != pos.X && j != pos.Y && tiles[i, j].Type == TileType.Obstacle)
+                    {
+                        Tile neighbour1 = tiles[i, (int)pos.Y];
+                        Tile neighbour2 = tiles[(int)pos.X, j];
+
+                        if (!(neighbour1.Type == TileType.Obstacle) && !(neighbour2.Type == TileType.Obstacle))
+                        {
+                            return true;
+                        }
+                    }
+                }
+            }
+
+            return false;
         }
 
 
