@@ -111,46 +111,69 @@ namespace AStarRaylib.Pathfinders
                     continue;
                 }
 
-                bool hitRaycast = HelpMethods.RaycastBetween(tiles, path[index - 1], path[index + 1]);
+                //bool hitRaycast = HelpMethods.RaycastBetween(tiles, path[index - 1], path[index + 1]);
 
-                if (!hitRaycast && !IsCorner(pos, tiles))
+                if (!IsCorner(pos, path[index-1], path[index + 1] ,tiles))
                 {
                     newPath.Remove(pos);
                 }
 
-                //if (hitRaycast)
+                //Remove "false" corners
+
+                #region RaycastNOTWORKING
+                //else if (hitRaycast)
                 //{
-                //    IPathFinder pathFinder = new AStarBase();
+                //    Console.WriteLine("A raycast hit the tower");
+
+                //    AStarBase pathFinder = new AStarBase();
 
                 //    while (!pathFinder.FoundPath && (tiles.Cast<Tile>().Where(tile => tile.Type == TileType.Opened).Any() || pathFinder.FirstIteration))
                 //    {
-                //        Tile? chosenTile = pathFinder.ChooseLowestF(tiles, );
+                //        Vector2 startPos = path[index-1];
+                //        Vector2 endPos = path[index+1];
+
+                //        Tile? chosenTile = pathFinder.ChooseLowestF(tiles, startPos);
 
                 //        if (chosenTile == null)
                 //        {
-                //            return;
+                //            continue;
                 //        }
 
-                //        Tile? endingTile = agent.Pathfinder.IterationForTile(chosenTile, agent.Tiles, agent.StartPos, EndPos);
+                //        Tile? endingTile = pathFinder.IterationForTile(chosenTile, tiles, startPos, endPos);
 
                 //        if (endingTile != null)
                 //        {
-                //            agent.Pathfinder.FoundPath = true;
-                //            agent.Path = endingTile.GetPath();
-                //            agent.Path = agent.Pathfinder.EnhancePath(agent.Path, agent.Tiles);
+                //            pathFinder.FoundPath = true;
+
+                //            newPath.Remove(pos);
+
+                //            List<Vector2> recursivePath = endingTile.GetPath();
+                //            recursivePath.Remove(recursivePath.Last());
+                //            recursivePath.Remove(recursivePath.First());
+
+
+                //            newPath.InsertRange(index-1, recursivePath);
                 //        }
                 //    }
                 //}
+
+                #endregion
 
                 index++;
 
                 continue;
             }
 
+            foreach(Vector2 pos in newPath)
+            {
+                tiles[(int)pos.X, (int)pos.Y].OverrideColor = Raylib_cs.Color.DarkPurple;
+            }
+
             return newPath;
         }
 
-        private bool IsCorner(Vector2 pos, Tile[,] tiles)
+        
+        private bool IsCorner(Vector2 pos, Vector2 prevTile, Vector2 nextTile, Tile[,] tiles)
         {
             for (int j = (int)pos.Y - 1; j < (int)pos.Y + 2; j++)
             {
@@ -165,10 +188,25 @@ namespace AStarRaylib.Pathfinders
                     //Diagnoally is obstacle, then End, it is a corner tile
                     if (i != pos.X && j != pos.Y && tiles[i, j].Type == TileType.Obstacle)
                     {
+                        Vector2 vecToPrev = Vector2.Normalize(prevTile - pos);
+                        Vector2 vecToObstacle = Vector2.Normalize(new Vector2(i, j) - pos);
+                        Vector2 vecToNext = Vector2.Normalize(nextTile - pos);
+
+                        double angle1 = Math.Acos(Vector2.Dot(vecToPrev, vecToObstacle));
+                        double angle2 = Math.Acos(Vector2.Dot(vecToObstacle, vecToNext));
+
+                        double angle = angle1 + angle2;
+
                         Tile neighbour1 = tiles[i, (int)pos.Y];
                         Tile neighbour2 = tiles[(int)pos.X, j];
 
-                        if (!(neighbour1.Type == TileType.Obstacle) && !(neighbour2.Type == TileType.Obstacle))
+                        Console.WriteLine(angle1 + ", " + angle2  + ", " + angle);
+
+                        if(angle > Math.PI)
+                            Console.WriteLine("Goon");
+                            //tiles[(int)pos.X, (int)pos.Y].OverrideColor = Raylib_cs.Color.Yellow;
+
+                        if (!(neighbour1.Type == TileType.Obstacle) && !(neighbour2.Type == TileType.Obstacle) && angle <= Math.PI)
                         {
                             return true;
                         }

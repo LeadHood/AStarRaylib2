@@ -23,7 +23,7 @@ namespace AStarRaylib
             //Calculate H
             float xDiff = (int)Math.Abs(endPos.X - tile.Position.X);
             float yDiff = (int)Math.Abs(endPos.Y - tile.Position.Y);
-            return (int)(Math.Sqrt(xDiff * xDiff + yDiff * yDiff) * 15);
+            return (int)(Math.Sqrt(xDiff * xDiff + yDiff * yDiff) * 10);
         }
 
         public static int CalculateHMinMax(Tile tile, Vector2 endPos)

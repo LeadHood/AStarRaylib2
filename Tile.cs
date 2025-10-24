@@ -1,5 +1,6 @@
 ﻿using static Raylib_cs.Raylib;
 using System.Numerics;
+using Raylib_cs;
 
 namespace AStarRaylib
 {
@@ -23,6 +24,7 @@ namespace AStarRaylib
         public int F { get => G + H; }
 
         public Tile? Parent { get; set; }
+        public Color? OverrideColor { get; set; } = null;
 
         public Tile(Vector2 position, TileType type)
         {
@@ -56,7 +58,8 @@ namespace AStarRaylib
         public void Draw()
         {
             //Debugcolor
-            Raylib_cs.Color col = (Position.Equals(Program.EndPos)) ? Raylib_cs.Color.Gray : ColorMapper.GetColorByTileType(this.Type);
+            Color col = (Position.Equals(Program.EndPos)) ? Raylib_cs.Color.Gray : ColorMapper.GetColorByTileType(this.Type);
+            col = OverrideColor != null ? (Color)OverrideColor : col;
 
             DrawRectangle((int)Position.X * Program.SQR_PIXEL_SIZE, (int)Position.Y * Program.SQR_PIXEL_SIZE, Program.SQR_PIXEL_SIZE, Program.SQR_PIXEL_SIZE, col);
 
