@@ -45,6 +45,18 @@ namespace AStarRaylib
                 return parent.G + 10;
         }
 
+        public static float Angle(Vector2 from, Vector2 to)
+        {
+            float num = (float)Math.Sqrt(from.LengthSquared() * to.LengthSquared());
+            if (num < float.Epsilon)
+            {
+                return 0f;
+            }
+
+            float num2 = Math.Clamp(Vector2.Dot(from, to) / num, -1f, 1f);
+            return (float)Math.Acos(num2);
+        }
+
         public static bool RaycastBetween(Tile[,] tiles, Vector2 start, Vector2 end)
         {
             int width = tiles.GetLength(0);

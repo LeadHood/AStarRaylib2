@@ -57,7 +57,7 @@ namespace AStarRaylib
             //Agents.Add(new Agent(new Pathfinders.AStarOptimized(), StartPos));
             //Agents.Add(new Agent(new Pathfinders.AStarOptimized(), new Vector2(4, 6)));
 
-            for (int x = 0; x < 1/*SCREEN_Y*/; x++)
+            for (int x = 0; x < SCREEN_Y; x++)
             {
                 Agents.Add(new Agent(new Pathfinders.AStarOptimized(), new Vector2(0, x)));
                 //Agents.Add(new Agent(new Pathfinders.AStarBase(), new Vector2(0, x)));
@@ -68,34 +68,8 @@ namespace AStarRaylib
 
         static void Update()
         {
-            //Input
-            if (IsMouseButtonDown(MouseButton.Left))
-            {
-                Vector2 mousePos = GetMousePosition();
-                Vector2 mouseTilePos = new Vector2((int)mousePos.X/SQR_PIXEL_SIZE, (int)mousePos.Y / SQR_PIXEL_SIZE);
 
-                if (!ObstaclePositions.Exists(vec => vec.X == (int)mouseTilePos.X && vec.Y == (int)mouseTilePos.Y) && !Erasing)
-                {
-                    ObstaclePositions.Add(mouseTilePos);
-                }
-                else if(Erasing)
-                {
-                    ObstaclePositions.Remove(mouseTilePos);
-                }
-
-                Reset();
-            }
-
-            if (IsKeyPressed(KeyboardKey.E))
-            {
-                Erasing = !Erasing;
-            }
-
-            if (IsKeyPressed(KeyboardKey.R))
-            {
-                ObstaclePositions.Clear();
-                Reset();
-            }
+            InputUpdate();
 
             //Instant pathfinding
             if(DebugFrames == 0)
@@ -117,6 +91,43 @@ namespace AStarRaylib
             //}
 
             //FrameTimer++;
+        }
+
+        static void InputUpdate()
+        {
+            //Input
+            if (IsMouseButtonDown(MouseButton.Left))
+            {
+                Vector2 mousePos = GetMousePosition();
+                Vector2 mouseTilePos = new Vector2((int)mousePos.X / SQR_PIXEL_SIZE, (int)mousePos.Y / SQR_PIXEL_SIZE);
+
+                if (!Erasing && !ObstaclePositions.Exists(vec => vec.X == (int)mouseTilePos.X && vec.Y == (int)mouseTilePos.Y))
+                {
+                    ObstaclePositions.Add(mouseTilePos);
+                    Reset();
+                }
+                else if (Erasing && ObstaclePositions.Exists(vec => vec.X == (int)mouseTilePos.X && vec.Y == (int)mouseTilePos.Y))
+                {
+                    ObstaclePositions.Remove(mouseTilePos);
+                    Reset();
+                }
+            }
+
+            if (IsKeyPressed(KeyboardKey.C))
+            {
+                Console.Clear();
+            }
+
+            if (IsKeyPressed(KeyboardKey.E))
+            {
+                Erasing = !Erasing;
+            }
+
+            if (IsKeyPressed(KeyboardKey.R))
+            {
+                ObstaclePositions.Clear();
+                Reset();
+            }
         }
 
         static void RunAgents()
@@ -164,7 +175,8 @@ namespace AStarRaylib
             {
                 agent.Pathfinder.FoundPath = true;
                 agent.Path = endingTile.GetPath();
-                agent.Path = agent.Pathfinder.EnhancePath(agent.Path, agent.Tiles);
+                List<Vector2> enhancedPath = agent.Pathfinder.EnhancePath(agent.Path, agent.Tiles);
+                agent.Path = enhancedPath;
             }
         }
 

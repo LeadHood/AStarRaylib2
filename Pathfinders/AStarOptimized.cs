@@ -98,13 +98,13 @@ namespace AStarRaylib.Pathfinders
 
         public List<Vector2> EnhancePath(List<Vector2> path, Tile[,] tiles)
         {
-            List<Vector2> newPath = [.. path];
+            List<Vector2> tempPath = [.. path];
 
             int index = 0;
 
             foreach (Vector2 pos in path)
             {
-                //First and last pos is static
+                //First and last pos is 
                 if (index == 0 || index == path.Count - 1)
                 {
                     index++;
@@ -113,12 +113,14 @@ namespace AStarRaylib.Pathfinders
 
                 //bool hitRaycast = HelpMethods.RaycastBetween(tiles, path[index - 1], path[index + 1]);
 
-                if (!IsCorner(pos, path[index-1], path[index + 1] ,tiles))
+                if (!IsCorner(pos, path[index-1], path[index + 1], tiles))
                 {
-                    newPath.Remove(pos);
+                    tempPath.Remove(pos);
                 }
-
-                //Remove "false" corners
+                else
+                {
+                    tiles[(int)pos.X, (int)pos.Y].OverrideColor = Raylib_cs.Color.DarkPurple;
+                }
 
                 #region RaycastNOTWORKING
                 //else if (hitRaycast)
@@ -164,9 +166,26 @@ namespace AStarRaylib.Pathfinders
                 continue;
             }
 
-            foreach(Vector2 pos in newPath)
+            index = 0;
+
+            List<Vector2> newPath = [..tempPath];
+
+            foreach (Vector2 pos in tempPath)
             {
-                tiles[(int)pos.X, (int)pos.Y].OverrideColor = Raylib_cs.Color.DarkPurple;
+                if (index == 0 || index == tempPath.Count - 1)
+                {
+                    index++;
+                    continue;
+                }
+
+                int tempIndex = index;
+
+                if (IsFalseCorner(pos, newPath[newPath.FindIndex(v => v.Equals(tempPath[index])) - 1], tempPath[index + 1], tiles))
+                {
+                    newPath.Remove(pos);
+                }
+
+                index++;
             }
 
             return newPath;
@@ -185,28 +204,12 @@ namespace AStarRaylib.Pathfinders
                         continue;
                     }
 
-                    //Diagnoally is obstacle, then End, it is a corner tile
                     if (i != pos.X && j != pos.Y && tiles[i, j].Type == TileType.Obstacle)
                     {
-                        Vector2 vecToPrev = Vector2.Normalize(prevTile - pos);
-                        Vector2 vecToObstacle = Vector2.Normalize(new Vector2(i, j) - pos);
-                        Vector2 vecToNext = Vector2.Normalize(nextTile - pos);
-
-                        double angle1 = Math.Acos(Vector2.Dot(vecToPrev, vecToObstacle));
-                        double angle2 = Math.Acos(Vector2.Dot(vecToObstacle, vecToNext));
-
-                        double angle = angle1 + angle2;
-
                         Tile neighbour1 = tiles[i, (int)pos.Y];
                         Tile neighbour2 = tiles[(int)pos.X, j];
 
-                        Console.WriteLine(angle1 + ", " + angle2  + ", " + angle);
-
-                        if(angle > Math.PI)
-                            Console.WriteLine("Goon");
-                            //tiles[(int)pos.X, (int)pos.Y].OverrideColor = Raylib_cs.Color.Yellow;
-
-                        if (!(neighbour1.Type == TileType.Obstacle) && !(neighbour2.Type == TileType.Obstacle) && angle <= Math.PI)
+                        if (!(neighbour1.Type == TileType.Obstacle) && !(neighbour2.Type == TileType.Obstacle))
                         {
                             return true;
                         }
@@ -215,6 +218,48 @@ namespace AStarRaylib.Pathfinders
             }
 
             return false;
+        }
+
+        private bool IsFalseCorner(Vector2 pos, Vector2 prevTile, Vector2 nextTile, Tile[,] tiles)
+        {
+            for (int j = (int)pos.Y - 1; j < (int)pos.Y + 2; j++)
+            {
+                for (int i = (int)pos.X - 1; i < (int)pos.X + 2; i++)
+                {
+                    //if it Is outside then continue
+                    if (i < 0 || i >= tiles.GetLength(0) || j < 0 || j >= tiles.GetLength(1))
+                    {
+                        continue;
+                    }
+
+                    if (i != pos.X && j != pos.Y && tiles[i, j].Type == TileType.Obstacle)
+                    {
+                        Vector2 vecToPrev = Vector2.Normalize(prevTile - pos);
+                        Vector2 vecToObstacle = Vector2.Normalize(new Vector2(i, j) - pos);
+                        Vector2 vecToNext = Vector2.Normalize(nextTile - pos);
+
+                        //Angle math mathing
+                        double angle1 = HelpMethods.Angle(vecToPrev, vecToObstacle);
+                        double angle2 = HelpMethods.Angle(vecToNext, vecToObstacle);
+
+                        double angle = angle1 + angle2;
+
+                        //Console.WriteLine(angle1 + ", " + angle2 + ", " + angle + ", " + pos);
+                        //Console.WriteLine($"{angle1, -20} {angle2, -20} {angle, -20} {pos, -20}");
+
+                        //if(angle > Math.PI)
+                        //    Console.WriteLine("Goon");
+                        //tiles[(int)pos.X, (int)pos.Y].OverrideColor = Raylib_cs.Color.Yellow;
+
+                        if (angle <= Math.PI)
+                        {
+                            return false;
+                        }
+                    }
+                }
+            }
+
+            return true;
         }
 
 
