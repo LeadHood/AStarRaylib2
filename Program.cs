@@ -57,7 +57,7 @@ namespace AStarRaylib
             //Agents.Add(new Agent(new Pathfinders.AStarOptimized(), StartPos));
             //Agents.Add(new Agent(new Pathfinders.AStarOptimized(), new Vector2(4, 6)));
 
-            for (int x = 0; x < SCREEN_Y; x++)
+            for (int x = 0; x < 1/*SCREEN_Y*/; x++)
             {
                 Agents.Add(new Agent(new Pathfinders.AStarOptimized(), new Vector2(0, x)));
                 //Agents.Add(new Agent(new Pathfinders.AStarBase(), new Vector2(0, x)));
@@ -203,8 +203,8 @@ namespace AStarRaylib
                 DrawPath(agent.Path, ColorMapper.ColorsForPaths[index%ColorMapper.ColorsForPaths.Length]);
             }
 
-            DrawText("Tool: " + (Erasing ? "Eraser" : "Brush"), 10, SQR_PIXEL_SIZE * SCREEN_Y - 24, 24, Color.White);
-            DrawText("Elapsed time: " + elapsedMilliseconds + " ms", SQR_PIXEL_SIZE * SCREEN_X - 500, SQR_PIXEL_SIZE * SCREEN_Y - 24, 24, Color.White);
+            DrawText("Tool: " + (Erasing ? "Eraser" : "Brush"), 10, SQR_PIXEL_SIZE * SCREEN_Y - 24, 24, Color.Gray);
+            DrawText("Elapsed time: " + elapsedMilliseconds + " ms", SQR_PIXEL_SIZE * SCREEN_X - 500, SQR_PIXEL_SIZE * SCREEN_Y - 24, 24, Color.Gray);
 
             EndDrawing();
         }

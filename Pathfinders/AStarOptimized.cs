@@ -98,101 +98,46 @@ namespace AStarRaylib.Pathfinders
 
         public List<Vector2> EnhancePath(List<Vector2> path, Tile[,] tiles)
         {
-            List<Vector2> tempPath = [.. path];
+            List<Vector2> onlyCorners = new List<Vector2> { path[0] };
 
-            int index = 0;
-
-            foreach (Vector2 pos in path)
+            for (int i = 1; i < path.Count - 1; i++)
             {
-                //First and last pos is 
-                if (index == 0 || index == path.Count - 1)
-                {
-                    index++;
-                    continue;
-                }
+                Vector2 currPos = path[i];
 
                 //bool hitRaycast = HelpMethods.RaycastBetween(tiles, path[index - 1], path[index + 1]);
 
-                if (!IsCorner(pos, path[index-1], path[index + 1], tiles))
+                if (IsCorner(currPos, tiles))
                 {
-                    tempPath.Remove(pos);
+                    onlyCorners.Add(currPos);
+                    tiles[(int)currPos.X, (int)currPos.Y].OverrideColor = Raylib_cs.Color.DarkPurple;
                 }
-                else
-                {
-                    tiles[(int)pos.X, (int)pos.Y].OverrideColor = Raylib_cs.Color.DarkPurple;
-                }
-
-                #region RaycastNOTWORKING
-                //else if (hitRaycast)
-                //{
-                //    Console.WriteLine("A raycast hit the tower");
-
-                //    AStarBase pathFinder = new AStarBase();
-
-                //    while (!pathFinder.FoundPath && (tiles.Cast<Tile>().Where(tile => tile.Type == TileType.Opened).Any() || pathFinder.FirstIteration))
-                //    {
-                //        Vector2 startPos = path[index-1];
-                //        Vector2 endPos = path[index+1];
-
-                //        Tile? chosenTile = pathFinder.ChooseLowestF(tiles, startPos);
-
-                //        if (chosenTile == null)
-                //        {
-                //            continue;
-                //        }
-
-                //        Tile? endingTile = pathFinder.IterationForTile(chosenTile, tiles, startPos, endPos);
-
-                //        if (endingTile != null)
-                //        {
-                //            pathFinder.FoundPath = true;
-
-                //            newPath.Remove(pos);
-
-                //            List<Vector2> recursivePath = endingTile.GetPath();
-                //            recursivePath.Remove(recursivePath.Last());
-                //            recursivePath.Remove(recursivePath.First());
-
-
-                //            newPath.InsertRange(index-1, recursivePath);
-                //        }
-                //    }
-                //}
-
-                #endregion
-
-                index++;
 
                 continue;
             }
 
-            index = 0;
+            //Adding last elemebnt of path to onlycorners to include both start and endpos
+            onlyCorners.Add(path[^1]);
 
-            List<Vector2> newPath = [..tempPath];
+            List<Vector2> newPath = [..onlyCorners];
 
-            foreach (Vector2 pos in tempPath)
+            //Finding the false corners
+            for (int i = 1; i < onlyCorners.Count - 1; i++)
             {
-                if (index == 0 || index == tempPath.Count - 1)
+                Vector2 currPos = onlyCorners[i];
+                Vector2 nextPos = onlyCorners[i + 1];
+                Vector2 prevPos = onlyCorners[newPath.FindIndex(v => v.Equals(currPos)) - 1];
+
+                if (IsFalseCorner(currPos, prevPos, nextPos, tiles))
                 {
-                    index++;
-                    continue;
+                    newPath.Remove(onlyCorners[i]);
                 }
-
-                int tempIndex = index;
-
-                if (IsFalseCorner(pos, newPath[newPath.FindIndex(v => v.Equals(tempPath[index])) - 1], tempPath[index + 1], tiles))
-                {
-                    newPath.Remove(pos);
-                }
-
-                index++;
             }
 
             return newPath;
         }
 
         
-        private bool IsCorner(Vector2 pos, Vector2 prevTile, Vector2 nextTile, Tile[,] tiles)
+        private bool IsCorner(Vector2 pos, Tile[,] tiles)
         {
             for (int j = (int)pos.Y - 1; j < (int)pos.Y + 2; j++)
             {
@@ -247,8 +192,6 @@ namespace AStarRaylib.Pathfinders
                         //Console.WriteLine(angle1 + ", " + angle2 + ", " + angle + ", " + pos);
                         //Console.WriteLine($"{angle1, -20} {angle2, -20} {angle, -20} {pos, -20}");
 
-                        //if(angle > Math.PI)
-                        //    Console.WriteLine("Goon");
                         //tiles[(int)pos.X, (int)pos.Y].OverrideColor = Raylib_cs.Color.Yellow;
 
                         if (angle <= Math.PI)
