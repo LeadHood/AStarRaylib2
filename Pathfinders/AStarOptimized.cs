@@ -212,5 +212,7 @@ namespace AStarRaylib.Pathfinders
             FoundPath = false;
             OpenedTiles.Clear();
         }
+
+
     }
 }

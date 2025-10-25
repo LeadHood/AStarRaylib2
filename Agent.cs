@@ -41,6 +41,27 @@ namespace AStarRaylib
             }
         }
 
+        public void FindPath(Vector2 endPos)
+        {
+            while (!Pathfinder.FoundPath && (Tiles.Cast<Tile>().Where(tile => tile.Type == TileType.Opened).Any() || Pathfinder.FirstIteration))
+            {
+                Tile? chosenTile = Pathfinder.ChooseLowestF(Tiles, StartPos);
+
+                if (chosenTile == null)
+                {
+                    return;
+                }
+
+                Tile? endingTile = Pathfinder.IterationForTile(chosenTile, Tiles, StartPos, endPos);
+
+                if (endingTile != null)
+                {
+                    Pathfinder.FoundPath = true;
+                    Path = Pathfinder.EnhancePath(endingTile.GetPath(), Tiles);
+                }
+            }
+        }
+
         public void Reset()
         {
             Position = StartPos;

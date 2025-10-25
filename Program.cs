@@ -57,7 +57,7 @@ namespace AStarRaylib
             //Agents.Add(new Agent(new Pathfinders.AStarOptimized(), StartPos));
             //Agents.Add(new Agent(new Pathfinders.AStarOptimized(), new Vector2(4, 6)));
 
-            for (int x = 0; x < 1/*SCREEN_Y*/; x++)
+            for (int x = 0; x < /*1*/SCREEN_Y; x++)
             {
                 Agents.Add(new Agent(new Pathfinders.AStarOptimized(), new Vector2(0, x)));
                 //Agents.Add(new Agent(new Pathfinders.AStarBase(), new Vector2(0, x)));
@@ -68,7 +68,6 @@ namespace AStarRaylib
 
         static void Update()
         {
-
             InputUpdate();
 
             //Instant pathfinding
@@ -77,6 +76,7 @@ namespace AStarRaylib
                 RunAgents();
             }
 
+            #region Debugging pathfinding
             //Debugging pathfinding
             //if (FrameTimer >= DebugFrames)
             //{
@@ -91,6 +91,7 @@ namespace AStarRaylib
             //}
 
             //FrameTimer++;
+            #endregion
         }
 
         static void InputUpdate()
@@ -134,6 +135,7 @@ namespace AStarRaylib
         {
             Stopwatch stopwatch = new Stopwatch();
 
+
             Parallel.ForEach(Agents, agent =>
             {
                 if (agent.Pathfinder.FoundPath)
@@ -143,40 +145,15 @@ namespace AStarRaylib
 
                 stopwatch.Start();
 
-                while (!agent.Pathfinder.FoundPath && (agent.Tiles.Cast<Tile>().Where(tile => tile.Type == TileType.Opened).Any() || agent.Pathfinder.FirstIteration))
-                {
-                    IterationForAlgoritm(agent);
-                }
-
-                return;
+                agent.FindPath(EndPos);
             });
 
             stopwatch.Stop();
 
 
-            if(stopwatch.Elapsed.TotalMilliseconds != 0)
+            if(stopwatch.Elapsed.TotalMilliseconds > 0.01d)
             {
                 elapsedMilliseconds = stopwatch.Elapsed.TotalMilliseconds;
-            }
-        }
-
-        static void IterationForAlgoritm(Agent agent)
-        {
-            Tile? chosenTile = agent.Pathfinder.ChooseLowestF(agent.Tiles, agent.StartPos);
-
-            if (chosenTile == null)
-            {
-                return;
-            }
-
-            Tile? endingTile = agent.Pathfinder.IterationForTile(chosenTile, agent.Tiles, agent.StartPos, EndPos);
-
-            if (endingTile != null)
-            {
-                agent.Pathfinder.FoundPath = true;
-                agent.Path = endingTile.GetPath();
-                List<Vector2> enhancedPath = agent.Pathfinder.EnhancePath(agent.Path, agent.Tiles);
-                agent.Path = enhancedPath;
             }
         }
 
