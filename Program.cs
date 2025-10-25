@@ -57,7 +57,7 @@ namespace AStarRaylib
             //Agents.Add(new Agent(new Pathfinders.AStarOptimized(), StartPos));
             //Agents.Add(new Agent(new Pathfinders.AStarOptimized(), new Vector2(4, 6)));
 
-            for (int x = 0; x < /*1*/SCREEN_Y; x++)
+            for (int x = 0; x < 1/*SCREEN_Y*/; x++)
             {
                 Agents.Add(new Agent(new Pathfinders.AStarOptimized(), new Vector2(0, x)));
                 //Agents.Add(new Agent(new Pathfinders.AStarBase(), new Vector2(0, x)));

@@ -25,52 +25,53 @@ namespace AStarRaylib.Pathfinders
             int y = (int)tile.Position.Y;
 
             //Looping around the 8 positions around the tile
-            for (int j = y - 1; j < y + 2; j++)
+
+            foreach (var (dx, dy) in HelpMethods.NeighborOffsets)
             {
-                for (int i = x - 1; i < x + 2; i++)
+                int i = x + dx;
+                int j = y + dy;
+
+                //Can't be outside of bounds, therefore continue if the index is.
+                if (i < 0 || i >= tiles.GetLength(0) || j < 0 || j >= tiles.GetLength(1))
                 {
-                    //Can't be outside of bounds, therefore continue if the index is.
-                    if (i < 0 || i >= tiles.GetLength(0) || j < 0 || j >= tiles.GetLength(1))
-                    {
-                        continue;
-                    }
-
-                    Tile curTile = tiles[i, j];
-
-                    int newG = HelpMethods.CalculateG(curTile, tile);
-                    if (curTile.Type == TileType.Opened && (curTile.G > newG))
-                    {
-                        Tile neighbour1 = tiles[i, (int)curTile.Position.Y];
-                        Tile neighbour2 = tiles[(int)curTile.Position.X, j];
-
-                        if (i != x && j != y && !(neighbour1.Type == TileType.Obstacle) && !(neighbour2.Type == TileType.Obstacle))
-                        {
-                            continue;
-                        }
-
-                        curTile.Parent = tile;
-                        curTile.G = newG;
-                        continue;
-                    }
-
-                    if (curTile.Type == TileType.Obstacle || curTile.Type == TileType.Closed || curTile.Type == TileType.Opened)
-                    {
-                        continue;
-                    }
-
-                    //Checking if it is a diagonal move and if it is a obstacle
-                    if (i != x && j != y && (tiles[x, j].Type == TileType.Obstacle || tiles[i, y].Type == TileType.Obstacle))
-                    { 
-                        continue;
-                    }
-
-                    //Setting it open
-                    curTile.Type = TileType.Opened;
-                    curTile.Parent = tile;
-                    curTile.SetValues();
-
-                    OpenedTiles.Add(curTile);
+                    continue;
                 }
+
+                Tile curTile = tiles[i, j];
+
+                int newG = HelpMethods.CalculateG(curTile, tile);
+                if (curTile.Type == TileType.Opened && (curTile.G > newG))
+                {
+                    Tile neighbour1 = tiles[i, (int)curTile.Position.Y];
+                    Tile neighbour2 = tiles[(int)curTile.Position.X, j];
+
+                    if (i != x && j != y && !(neighbour1.Type == TileType.Obstacle) && !(neighbour2.Type == TileType.Obstacle))
+                    {
+                        continue;
+                    }
+
+                    curTile.Parent = tile;
+                    curTile.G = newG;
+                    continue;
+                }
+
+                if (curTile.Type == TileType.Obstacle || curTile.Type == TileType.Closed || curTile.Type == TileType.Opened)
+                {
+                    continue;
+                }
+
+                //Checking if it is a diagonal move and if it is a obstacle
+                if (i != x && j != y && (tiles[x, j].Type == TileType.Obstacle || tiles[i, y].Type == TileType.Obstacle))
+                {
+                    continue;
+                }
+
+                //Setting it open
+                curTile.Type = TileType.Opened;
+                curTile.Parent = tile;
+                curTile.SetValues();
+
+                OpenedTiles.Add(curTile);
             }
 
             return null;
@@ -139,25 +140,25 @@ namespace AStarRaylib.Pathfinders
         
         private bool IsCorner(Vector2 pos, Tile[,] tiles)
         {
-            for (int j = (int)pos.Y - 1; j < (int)pos.Y + 2; j++)
+            foreach(var (dx, dy) in HelpMethods.CornerOffsets)
             {
-                for (int i = (int)pos.X - 1; i < (int)pos.X + 2; i++)
+                int i = (int)pos.X + dx;
+                int j = (int)pos.Y + dy;
+
+                //if it Is outside then continue
+                if (i < 0 || i >= tiles.GetLength(0) || j < 0 || j >= tiles.GetLength(1))
                 {
-                    //if it Is outside then continue
-                    if (i < 0 || i >= tiles.GetLength(0) || j < 0 || j >= tiles.GetLength(1))
-                    {
-                        continue;
-                    }
+                    continue;
+                }
 
-                    if (i != pos.X && j != pos.Y && tiles[i, j].Type == TileType.Obstacle)
-                    {
-                        Tile neighbour1 = tiles[i, (int)pos.Y];
-                        Tile neighbour2 = tiles[(int)pos.X, j];
+                Tile neighbour1 = tiles[i, (int)pos.Y];
+                Tile neighbour2 = tiles[(int)pos.X, j];
 
-                        if (!(neighbour1.Type == TileType.Obstacle) && !(neighbour2.Type == TileType.Obstacle))
-                        {
-                            return true;
-                        }
+                if (i != pos.X && j != pos.Y && tiles[i, j].Type == TileType.Obstacle)
+                {
+                    if (!(neighbour1.Type == TileType.Obstacle) && !(neighbour2.Type == TileType.Obstacle))
+                    {
+                        return true;
                     }
                 }
             }
@@ -167,40 +168,42 @@ namespace AStarRaylib.Pathfinders
 
         private bool IsFalseCorner(Vector2 pos, Vector2 prevTile, Vector2 nextTile, Tile[,] tiles)
         {
-            for (int j = (int)pos.Y - 1; j < (int)pos.Y + 2; j++)
+            foreach (var (dx, dy) in HelpMethods.CornerOffsets)
             {
-                for (int i = (int)pos.X - 1; i < (int)pos.X + 2; i++)
+                int i = (int)pos.X + dx;
+                int j = (int)pos.Y + dy;
+
+                //if it Is outside then continue
+                if (i < 0 || i >= tiles.GetLength(0) || j < 0 || j >= tiles.GetLength(1))
                 {
-                    //if it Is outside then continue
-                    if (i < 0 || i >= tiles.GetLength(0) || j < 0 || j >= tiles.GetLength(1))
+                    continue;
+                }
+
+                if (tiles[i, j].Type == TileType.Obstacle)
+                {
+                    Vector2 vecToPrev = Vector2.Normalize(prevTile - pos);
+                    Vector2 vecToObstacle = Vector2.Normalize(new Vector2(i, j) - pos);
+                    Vector2 vecToNext = Vector2.Normalize(nextTile - pos);
+
+                    //Angle math mathing
+                    double angle1 = HelpMethods.Angle(vecToPrev, vecToObstacle);
+                    double angle2 = HelpMethods.Angle(vecToNext, vecToObstacle);
+
+                    double angle = angle1 + angle2;
+
+                    //Console.WriteLine(angle1 + ", " + angle2 + ", " + angle + ", " + pos);
+                    //Console.WriteLine($"{angle1, -20} {angle2, -20} {angle, -20} {pos, -20}");
+
+                    //tiles[(int)pos.X, (int)pos.Y].OverrideColor = Raylib_cs.Color.Yellow;
+
+                    if (angle <= Math.PI)
                     {
-                        continue;
-                    }
-
-                    if (i != pos.X && j != pos.Y && tiles[i, j].Type == TileType.Obstacle)
-                    {
-                        Vector2 vecToPrev = Vector2.Normalize(prevTile - pos);
-                        Vector2 vecToObstacle = Vector2.Normalize(new Vector2(i, j) - pos);
-                        Vector2 vecToNext = Vector2.Normalize(nextTile - pos);
-
-                        //Angle math mathing
-                        double angle1 = HelpMethods.Angle(vecToPrev, vecToObstacle);
-                        double angle2 = HelpMethods.Angle(vecToNext, vecToObstacle);
-
-                        double angle = angle1 + angle2;
-
-                        //Console.WriteLine(angle1 + ", " + angle2 + ", " + angle + ", " + pos);
-                        //Console.WriteLine($"{angle1, -20} {angle2, -20} {angle, -20} {pos, -20}");
-
-                        //tiles[(int)pos.X, (int)pos.Y].OverrideColor = Raylib_cs.Color.Yellow;
-
-                        if (angle <= Math.PI)
-                        {
-                            return false;
-                        }
+                        return false;
                     }
                 }
             }
+
+            tiles[(int)pos.X, (int)pos.Y].OverrideColor = Raylib_cs.Color.Beige;
 
             return true;
         }

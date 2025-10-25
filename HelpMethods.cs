@@ -9,7 +9,6 @@ namespace AStarRaylib
 {
     internal static class HelpMethods
     {
-
         public static int CalculateHManhattan(Tile tile, Vector2 endPos)
         {
             //Calculate H
@@ -113,5 +112,19 @@ namespace AStarRaylib
 
             return false; // Ingen vägg hittades mellan punkterna
         }
+
+        public static readonly (int dx, int dy)[] NeighborOffsets =
+        {
+            (-1, -1), (0, -1), (1, -1),
+            (-1,  0),          (1,  0),
+            (-1,  1), (0,  1), (1,  1),
+        };
+
+        public static readonly (int dx, int dy)[] CornerOffsets =
+{
+            (-1, -1),          (1, -1),
+          
+            (-1,  1),          (1,  1),
+        };
     }
 }
