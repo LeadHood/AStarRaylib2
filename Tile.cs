@@ -26,6 +26,11 @@ namespace AStarRaylib
         public Tile? Parent { get; set; }
         public Color? OverrideColor { get; set; } = null;
 
+        public float? DebugAngle { get; set; } = null;
+        public float? DebugAngle1 { get; set; } = null;
+        public float? DebugAngle2 { get; set; } = null;
+
+
         public Tile(Vector2 position, TileType type)
         {
             Position = position;
@@ -66,6 +71,14 @@ namespace AStarRaylib
             if (!Program.DebugMode || Type == TileType.Unopened)
             {
                 return;
+            }
+
+            if (DebugAngle != null)
+            {
+                //DrawText($"{DebugAngle}", (int)(Position.X) * Program.SQR_PIXEL_SIZE + Program.TEXT_OFFSET, (int)(Position.Y) * Program.SQR_PIXEL_SIZE + Program.TEXT_OFFSET, Program.FONT_SIZE, ColorMapper.TextColor);
+
+                DrawText($"{DebugAngle1}", (int)(Position.X) * Program.SQR_PIXEL_SIZE + Program.TEXT_OFFSET, (int)(Position.Y) * Program.SQR_PIXEL_SIZE + Program.TEXT_OFFSET, Program.FONT_SIZE, ColorMapper.TextColor);
+                DrawText($"{DebugAngle2}", (int)(Position.X) * Program.SQR_PIXEL_SIZE + Program.TEXT_OFFSET, (int)(Position.Y) * Program.SQR_PIXEL_SIZE + Program.TEXT_OFFSET + 10, Program.FONT_SIZE, ColorMapper.TextColor);
             }
 
             ////G value

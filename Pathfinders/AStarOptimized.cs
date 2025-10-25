@@ -126,7 +126,7 @@ namespace AStarRaylib.Pathfinders
             {
                 Vector2 currPos = onlyCorners[i];
                 Vector2 nextPos = onlyCorners[i + 1];
-                Vector2 prevPos = onlyCorners[newPath.FindIndex(v => v.Equals(currPos)) - 1];
+                Vector2 prevPos = newPath[newPath.IndexOf(onlyCorners[i]) - 1];
 
                 if (IsFalseCorner(currPos, prevPos, nextPos, tiles))
                 {
@@ -136,7 +136,6 @@ namespace AStarRaylib.Pathfinders
 
             return newPath;
         }
-
         
         private bool IsCorner(Vector2 pos, Tile[,] tiles)
         {
@@ -190,6 +189,12 @@ namespace AStarRaylib.Pathfinders
                     double angle2 = HelpMethods.Angle(vecToNext, vecToObstacle);
 
                     double angle = angle1 + angle2;
+
+                    tiles[(int)pos.X, (int)pos.Y].DebugAngle = (float)angle;
+                    tiles[(int)pos.X, (int)pos.Y].DebugAngle1 = (float)angle1;
+                    tiles[(int)pos.X, (int)pos.Y].DebugAngle2 = (float)angle2;
+
+
 
                     //Console.WriteLine(angle1 + ", " + angle2 + ", " + angle + ", " + pos);
                     //Console.WriteLine($"{angle1, -20} {angle2, -20} {angle, -20} {pos, -20}");

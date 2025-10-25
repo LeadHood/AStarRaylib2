@@ -15,11 +15,11 @@ namespace AStarRaylib
         static int DebugFrames = 0;
         static int FrameTimer = 0;
 
-        const float DEBUG_LINE_SIZE = 4;
+        const float DEBUG_LINE_SIZE = /*4*/1;
 
         public const int SQR_PIXEL_SIZE = 60/2;
         public const int TEXT_OFFSET = 2;
-        public const int FONT_SIZE = 18;
+        public const int FONT_SIZE = 18/2;
 
         public const int SCREEN_X = 20 * 2;
         public const int SCREEN_Y = 15 * 2;
