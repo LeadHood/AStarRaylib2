@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
 using System.Diagnostics;
+using Raylib_cs;
 
 namespace AStarRaylib.Pathfinders
 {
@@ -121,20 +122,55 @@ namespace AStarRaylib.Pathfinders
 
             List<Vector2> newPath = [..onlyCorners];
 
-            //Finding the false corners
-            for (int i = 1; i < onlyCorners.Count - 1; i++)
-            {
-                Vector2 currPos = onlyCorners[i];
-                Vector2 nextPos = onlyCorners[i + 1];
-                Vector2 prevPos = newPath[newPath.IndexOf(onlyCorners[i]) - 1];
+            bool foundFalseCorner = true;
 
-                if (IsFalseCorner(currPos, prevPos, nextPos, tiles))
+            //Removing false corners until none exist
+            while (foundFalseCorner)
+            {
+                foundFalseCorner = false;
+                //Finding the false corners
+                for (int i = 1; i < onlyCorners.Count - 1; i++)
                 {
-                    newPath.Remove(onlyCorners[i]);
+                    int nPIndex = newPath.IndexOf(onlyCorners[i]);
+
+                    if (nPIndex == -1)
+                    {
+                        continue;
+                    }
+
+                    Vector2 currPos = onlyCorners[i];
+                    Vector2 nextPos = newPath[nPIndex + 1];
+                    Vector2 prevPos = newPath[nPIndex - 1];
+
+                    if (IsFalseCorner(currPos, prevPos, nextPos, tiles))
+                    {
+                        foundFalseCorner = true;
+                        newPath.Remove(onlyCorners[i]);
+                    }
                 }
             }
 
-            return newPath;
+            List<Vector2> tempPath = [.. newPath];
+
+            //for (int i = 0; i < newPath.Count - 1; i++)
+            //{
+            //    Vector2 pos = newPath[i];
+            //    Vector2 nextPos = newPath[i + 1];
+
+            //    if (HelpMethods.RaycastTiles(tiles, pos, nextPos).Any(tile => tile.Type == TileType.Obstacle))
+            //    {
+            //        Agent newAgent = new Agent(new Pathfinders.AStarBase(), pos);
+            //        newAgent.FindPath(nextPos);
+            //        List<Vector2> pathBetweenRaycast = newAgent.Path;
+            //        pathBetweenRaycast.RemoveAt(pathBetweenRaycast.Count - 1);
+            //        pathBetweenRaycast.RemoveAt(0);
+
+            //        ////Fix this later, it is gonna be very weird
+            //        tempPath.InsertRange(tempPath.IndexOf(newPath[i]), pathBetweenRaycast);
+            //    }
+            //}
+
+            return tempPath;
         }
         
         private bool IsCorner(Vector2 pos, Tile[,] tiles)
@@ -180,9 +216,17 @@ namespace AStarRaylib.Pathfinders
 
                 if (tiles[i, j].Type == TileType.Obstacle)
                 {
-                    Vector2 vecToPrev = Vector2.Normalize(prevTile - pos);
-                    Vector2 vecToObstacle = Vector2.Normalize(new Vector2(i, j) - pos);
-                    Vector2 vecToNext = Vector2.Normalize(nextTile - pos);
+                    //Vector2 vecToPrev = Vector2.Normalize(prevTile - pos);
+                    //Vector2 vecToObstacle = Vector2.Normalize(new Vector2(i, j) - pos);
+                    //Vector2 vecToNext = Vector2.Normalize(nextTile - pos);
+
+                    Vector2 vecToPrev = prevTile - pos;
+                    Vector2 vecToObstacle = new Vector2(i, j) - pos;
+                    Vector2 vecToNext = nextTile - pos;
+
+                    tiles[(int)pos.X, (int)pos.Y].DebugVector = vecToObstacle;
+                    tiles[(int)pos.X, (int)pos.Y].DebugVector1 = vecToPrev;
+                    tiles[(int)pos.X, (int)pos.Y].DebugVector2 = vecToNext;
 
                     //Angle math mathing
                     double angle1 = HelpMethods.Angle(vecToPrev, vecToObstacle);
@@ -201,7 +245,15 @@ namespace AStarRaylib.Pathfinders
 
                     //tiles[(int)pos.X, (int)pos.Y].OverrideColor = Raylib_cs.Color.Yellow;
 
-                    if (angle <= Math.PI)
+                    double epsilon = 0.01d;
+
+                    //if (angle <= Math.PI + epsilon)
+                    //{
+                    //    return false;
+                    //}
+
+
+                    if (angle < Math.PI)
                     {
                         return false;
                     }

@@ -183,6 +183,8 @@ namespace AStarRaylib
             DrawText("Tool: " + (Erasing ? "Eraser" : "Brush"), 10, SQR_PIXEL_SIZE * SCREEN_Y - 24, 24, Color.Gray);
             DrawText("Elapsed time: " + elapsedMilliseconds + " ms", SQR_PIXEL_SIZE * SCREEN_X - 500, SQR_PIXEL_SIZE * SCREEN_Y - 24, 24, Color.Gray);
 
+            DrawDebugTiles(Agents[0]);
+
             EndDrawing();
         }
 
@@ -206,6 +208,17 @@ namespace AStarRaylib
                 for (int x = 0; x < agent.Tiles.GetLength(0); x++)
                 {
                     agent.Tiles[x, y].Draw();
+                }
+            }
+        }
+
+        static void DrawDebugTiles(Agent agent)
+        {
+            for (int y = 0; y < agent.Tiles.GetLength(1); y++)
+            {
+                for (int x = 0; x < agent.Tiles.GetLength(0); x++)
+                {
+                    agent.Tiles[x, y].DebugDraw();
                 }
             }
         }

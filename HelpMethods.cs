@@ -56,62 +56,82 @@ namespace AStarRaylib
             return (float)Math.Acos(num2);
         }
 
-        public static bool RaycastBetween(Tile[,] tiles, Vector2 start, Vector2 end)
+
+        public static List<Tile> RaycastTiles(Tile[,] tiles, Vector2 start, Vector2 end)
         {
+            List<Tile> hitTiles = new();
+
             int width = tiles.GetLength(0);
             int height = tiles.GetLength(1);
-            int tileSize = Program.SQR_PIXEL_SIZE;
 
-            // Riktning och total längd
-            Vector2 direction = end - start;
-            float distanceToEnd = direction.Length();
-            direction /= distanceToEnd; // normalisera
 
-            // Tile-koordinater
-            int tileX = (int)(start.X / tileSize);
-            int tileY = (int)(start.Y / tileSize);
+            Vector2 rayDir = end - start;
+            float distanceToEnd = rayDir.Length();
 
-            int stepX = (direction.X > 0) ? 1 : -1;
-            int stepY = (direction.Y > 0) ? 1 : -1;
+            if (distanceToEnd == 0)
+                return hitTiles; 
 
-            float deltaDistX = MathF.Abs(tileSize / direction.X);
-            float deltaDistY = MathF.Abs(tileSize / direction.Y);
+            rayDir /= distanceToEnd; 
 
-            float startOffsetX = (tileX + (direction.X > 0 ? 1 : 0)) * tileSize - start.X;
-            float startOffsetY = (tileY + (direction.Y > 0 ? 1 : 0)) * tileSize - start.Y;
+            Vector2 mapCheck = new((float)Math.Floor(start.X), (float)Math.Floor(start.Y));
 
-            float sideDistX = (direction.X == 0) ? float.MaxValue : MathF.Abs(startOffsetX / direction.X);
-            float sideDistY = (direction.Y == 0) ? float.MaxValue : MathF.Abs(startOffsetY / direction.Y);
 
-            float distance = 0;
+            Vector2 step = new(MathF.Sign(rayDir.X), MathF.Sign(rayDir.Y));
 
-            while (distance < distanceToEnd)
+
+            Vector2 rayUnitStepSize = new(
+                MathF.Sqrt(1 + (rayDir.Y / rayDir.X) * (rayDir.Y / rayDir.X)),
+                MathF.Sqrt(1 + (rayDir.X / rayDir.Y) * (rayDir.X / rayDir.Y))
+            );
+
+            Vector2 rayLength = Vector2.Zero;
+            Vector2 startOffset = start - mapCheck;
+
+            if (rayDir.X < 0)
+                rayLength.X = startOffset.X * rayUnitStepSize.X;
+            else
+                rayLength.X = (1 - startOffset.X) * rayUnitStepSize.X;
+
+            if (rayDir.Y < 0)
+                rayLength.Y = startOffset.Y * rayUnitStepSize.Y;
+            else
+                rayLength.Y = (1 - startOffset.Y) * rayUnitStepSize.Y;
+
+            float currentDistance = 0;
+
+            while (currentDistance < distanceToEnd)
             {
-                // Kontrollera bounds
-                if (tileX < 0 || tileY < 0 || tileX >= width || tileY >= height)
-                    return true;
+                int x = (int)mapCheck.X;
+                int y = (int)mapCheck.Y;
 
-                // Hinder?
-                if (tiles[tileX, tileY].Type == TileType.Obstacle)
-                    return true; // Strålen blockeras
 
-                // Nästa tile
-                if (sideDistX < sideDistY)
+                if (x >= 0 && y >= 0 && x < width && y < height)
                 {
-                    tileX += stepX;
-                    distance = sideDistX;
-                    sideDistX += deltaDistX;
+                    tiles[x, y].OverrideColor = Raylib_cs.Color.Brown;
+                    hitTiles.Add(tiles[x, y]);
                 }
                 else
                 {
-                    tileY += stepY;
-                    distance = sideDistY;
-                    sideDistY += deltaDistY;
+                    break; 
+                }
+
+                if (rayLength.X < rayLength.Y)
+                {
+                    mapCheck.X += step.X;
+                    currentDistance = rayLength.X;
+                    rayLength.X += rayUnitStepSize.X;
+                }
+                else
+                {
+                    mapCheck.Y += step.Y;
+                    currentDistance = rayLength.Y;
+                    rayLength.Y += rayUnitStepSize.Y;
                 }
             }
 
-            return false; // Ingen vägg hittades mellan punkterna
+            return hitTiles;
         }
+    
 
         public static readonly (int dx, int dy)[] NeighborOffsets =
         {

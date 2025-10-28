@@ -30,6 +30,10 @@ namespace AStarRaylib
         public float? DebugAngle1 { get; set; } = null;
         public float? DebugAngle2 { get; set; } = null;
 
+        public Vector2? DebugVector { get; set; } = null;
+        public Vector2? DebugVector1 { get; set; } = null;
+        public Vector2? DebugVector2 { get; set; } = null;
+
 
         public Tile(Vector2 position, TileType type)
         {
@@ -73,12 +77,24 @@ namespace AStarRaylib
                 return;
             }
 
+        }
+
+        public void DebugDraw()
+        {
             if (DebugAngle != null)
             {
                 //DrawText($"{DebugAngle}", (int)(Position.X) * Program.SQR_PIXEL_SIZE + Program.TEXT_OFFSET, (int)(Position.Y) * Program.SQR_PIXEL_SIZE + Program.TEXT_OFFSET, Program.FONT_SIZE, ColorMapper.TextColor);
-
                 DrawText($"{DebugAngle1}", (int)(Position.X) * Program.SQR_PIXEL_SIZE + Program.TEXT_OFFSET, (int)(Position.Y) * Program.SQR_PIXEL_SIZE + Program.TEXT_OFFSET, Program.FONT_SIZE, ColorMapper.TextColor);
                 DrawText($"{DebugAngle2}", (int)(Position.X) * Program.SQR_PIXEL_SIZE + Program.TEXT_OFFSET, (int)(Position.Y) * Program.SQR_PIXEL_SIZE + Program.TEXT_OFFSET + 10, Program.FONT_SIZE, ColorMapper.TextColor);
+            }
+
+            if (DebugVector != null)
+            {
+                int thickness = 3;
+
+                //DrawLineEx((Position + new Vector2(0.5f, 0.5f)) * (Program.SQR_PIXEL_SIZE), ((Position + new Vector2(0.5f, 0.5f) + (Vector2)DebugVector) * (Program.SQR_PIXEL_SIZE)), thickness, Color.LightGray);
+                //DrawLineEx((Position + new Vector2(0.5f, 0.5f)) * (Program.SQR_PIXEL_SIZE), ((Position + new Vector2(0.5f, 0.5f) + (Vector2)DebugVector1!) * (Program.SQR_PIXEL_SIZE)), thickness, Color.Black);
+                //DrawLineEx((Position + new Vector2(0.5f, 0.5f)) * (Program.SQR_PIXEL_SIZE), ((Position + new Vector2(0.5f, 0.5f) + (Vector2)DebugVector2!) * (Program.SQR_PIXEL_SIZE)), thickness, Color.Black);
             }
 
             ////G value
