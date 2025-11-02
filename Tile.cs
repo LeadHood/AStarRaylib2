@@ -63,7 +63,7 @@ namespace AStarRaylib
         public void SetValues()
         {
             G = HelpMethods.CalculateG(this, Parent);//HelpMethods.CalculateG(this, Parent);
-            //H = HelpMethods.CalculateHPythagoras(this, Program.EndPos);
+            //H = HelpMethods.CalculateHManhattan(this, Program.EndPos);
             H = HelpMethods.CalculateHPythagoras(this, Program.EndPos);
         }
 
@@ -74,12 +74,6 @@ namespace AStarRaylib
             col = OverrideColor != null ? (Color)OverrideColor : col;
 
             DrawRectangle((int)Position.X * Program.SQR_PIXEL_SIZE, (int)Position.Y * Program.SQR_PIXEL_SIZE, Program.SQR_PIXEL_SIZE, Program.SQR_PIXEL_SIZE, col);
-
-            if (!Program.DebugMode || Type == TileType.Unopened)
-            {
-                return;
-            }
-
         }
 
         public void DebugDraw()

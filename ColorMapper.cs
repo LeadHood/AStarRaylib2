@@ -17,7 +17,7 @@ namespace AStarRaylib
         {
             Color.Red,
             Color.Orange,
-            Color.Yellow,
+            //Color.Yellow,
             Color.Lime,
             Color.Green,
             Color.SkyBlue,

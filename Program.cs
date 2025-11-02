@@ -7,32 +7,43 @@ using System.Diagnostics;
 
 namespace AStarRaylib
 {
+    enum MouseFunction
+    {
+        Obstacles,
+        GoalPos,
+    }
+
     class Program
     {
-        public static bool DebugMode = true;
+        //Variables to mess around with:
+        const float DEBUG_LINE_SIZE = /*4*/2;
 
-        // 0 for instant pathfinding
+        public const int SQR_PIXEL_SIZE = 30;
+        public const int TEXT_OFFSET = 2;
+        public const int FONT_SIZE = 9;
+
+        public const int SCREEN_X = 40;
+        public const int SCREEN_Y = 30;
+
+        public const int AGENTS_AMOUNT = 3;
+
+        //Endpos in the beginning, it can be changed during runtime
+        public static Vector2 EndPos { get; private set;} = new Vector2(39, 15);
+
+        //True: Draws which tiles the first agent looked at
+        static bool DrawFirstAgentGrid = true;
+
+        //This is for debugging how the algoritm searches, should not be changed.
         static int DebugFrames = 0;
         static int FrameTimer = 0;
-
-        const float DEBUG_LINE_SIZE = /*4*/1;
-
-        public const int SQR_PIXEL_SIZE = 60/2;
-        public const int TEXT_OFFSET = 2;
-        public const int FONT_SIZE = 18/2;
-
-        public const int SCREEN_X = 20 * 2;
-        public const int SCREEN_Y = 15 * 2;
-
-        static Vector2 StartPos = new Vector2(1, 9);
-        public static Vector2 EndPos = new Vector2(39, 15);
 
         static List<Agent> Agents = new List<Agent>();
 
         public static List<Vector2> ObstaclePositions { get; private set; } = new List<Vector2>();
 
-        static bool Erasing = false;
-        static double elapsedMilliseconds = 0;
+        static double ElapsedMilliseconds = 0;
+
+        static MouseFunction MouseMode;
 
         static void Main(string[] args)
         {
@@ -57,11 +68,14 @@ namespace AStarRaylib
             //Agents.Add(new Agent(new Pathfinders.AStarOptimized(), StartPos));
             //Agents.Add(new Agent(new Pathfinders.AStarOptimized(), new Vector2(4, 6)));
 
-            for (int x = 0; x < 1/*SCREEN_Y*/; x++)
+            //Change and add agents here to get many different agents running at the same time
+            for (int y = 0; y < Math.Clamp(AGENTS_AMOUNT, 1, SCREEN_Y); y++)
             {
-                Agents.Add(new Agent(new Pathfinders.AStarOptimized(), new Vector2(0, x)));
-                //Agents.Add(new Agent(new Pathfinders.AStarBase(), new Vector2(0, x)));
+                Agents.Add(new Agent(new Pathfinders.AStarOptimized(), new Vector2(0, y)));
+                //Agents.Add(new Agent(new Pathfinders.AStarBase(), new Vector2(0, y)));
             }
+
+            ObstaclePositions = HelpMethods.GenerateMaze(SCREEN_X, SCREEN_Y);
 
             Reset();
         }
@@ -70,7 +84,7 @@ namespace AStarRaylib
         {
             InputUpdate();
 
-            //Instant pathfinding
+            //Instant pathfinding, which should be used in final release.
             if(DebugFrames == 0)
             {
                 RunAgents();
@@ -96,21 +110,42 @@ namespace AStarRaylib
 
         static void InputUpdate()
         {
+            Vector2 mousePos = GetMousePosition();
+            Vector2 mouseTilePos = new Vector2((int)mousePos.X / SQR_PIXEL_SIZE, (int)mousePos.Y / SQR_PIXEL_SIZE);
+
             //Input
             if (IsMouseButtonDown(MouseButton.Left))
             {
-                Vector2 mousePos = GetMousePosition();
-                Vector2 mouseTilePos = new Vector2((int)mousePos.X / SQR_PIXEL_SIZE, (int)mousePos.Y / SQR_PIXEL_SIZE);
-
-                if (!Erasing && !ObstaclePositions.Exists(vec => vec.X == (int)mouseTilePos.X && vec.Y == (int)mouseTilePos.Y))
+                switch (MouseMode)
                 {
-                    ObstaclePositions.Add(mouseTilePos);
-                    Reset();
+                    case MouseFunction.Obstacles:
+                        if(!ObstaclePositions.Exists(vec => vec.X == (int)mouseTilePos.X && vec.Y == (int)mouseTilePos.Y))
+                        {
+                            ObstaclePositions.Add(mouseTilePos);
+                            Reset();
+                        }
+                        break;
+                    case MouseFunction.GoalPos:
+                        if(!ObstaclePositions.Contains(mouseTilePos))
+                        {
+                            EndPos = mouseTilePos;
+                            Reset();
+                        }
+                        break;
                 }
-                else if (Erasing && ObstaclePositions.Exists(vec => vec.X == (int)mouseTilePos.X && vec.Y == (int)mouseTilePos.Y))
+            }
+
+            if (IsMouseButtonDown(MouseButton.Right))
+            {
+                switch (MouseMode)
                 {
-                    ObstaclePositions.Remove(mouseTilePos);
-                    Reset();
+                    case MouseFunction.Obstacles:
+                        if (ObstaclePositions.Exists(vec => vec.X == (int)mouseTilePos.X && vec.Y == (int)mouseTilePos.Y))
+                        {
+                            ObstaclePositions.Remove(mouseTilePos);
+                            Reset();
+                        }
+                        break;
                 }
             }
 
@@ -121,7 +156,8 @@ namespace AStarRaylib
 
             if (IsKeyPressed(KeyboardKey.E))
             {
-                Erasing = !Erasing;
+                int MouseFunctionsAmount = Enum.GetNames(typeof(MouseFunction)).Length;
+                MouseMode = (MouseFunction)(((int)MouseMode + 1)%MouseFunctionsAmount);
             }
 
             if (IsKeyPressed(KeyboardKey.R))
@@ -135,7 +171,7 @@ namespace AStarRaylib
         {
             Stopwatch stopwatch = new Stopwatch();
 
-
+            //If many agents, running them parellely increases FPS.
             Parallel.ForEach(Agents, agent =>
             {
                 if (agent.Pathfinder.FoundPath)
@@ -150,10 +186,9 @@ namespace AStarRaylib
 
             stopwatch.Stop();
 
-
             if(stopwatch.Elapsed.TotalMilliseconds > 0.01d)
             {
-                elapsedMilliseconds = stopwatch.Elapsed.TotalMilliseconds;
+                ElapsedMilliseconds = stopwatch.Elapsed.TotalMilliseconds;
             }
         }
 
@@ -168,7 +203,10 @@ namespace AStarRaylib
                 tile.Draw();
             }
 
-            DrawTiles(Agents[0]);
+            if (DrawFirstAgentGrid)
+            {
+                DrawTiles(Agents[0]);
+            }
 
             DrawGrid();
 
@@ -180,8 +218,8 @@ namespace AStarRaylib
                 DrawPath(agent.Path, ColorMapper.ColorsForPaths[index%ColorMapper.ColorsForPaths.Length]);
             }
 
-            DrawText("Tool: " + (Erasing ? "Eraser" : "Brush"), 10, SQR_PIXEL_SIZE * SCREEN_Y - 24, 24, Color.Gray);
-            DrawText("Elapsed time: " + elapsedMilliseconds + " ms", SQR_PIXEL_SIZE * SCREEN_X - 500, SQR_PIXEL_SIZE * SCREEN_Y - 24, 24, Color.Gray);
+            DrawText("MouseMode: " + (MouseMode), 10, SQR_PIXEL_SIZE * SCREEN_Y - 24, 24, Color.Gray);
+            DrawText("Elapsed time: " + ElapsedMilliseconds + " ms", SQR_PIXEL_SIZE * SCREEN_X - 500, SQR_PIXEL_SIZE * SCREEN_Y - 24, 24, Color.Gray);
 
             DrawDebugTiles(Agents[0]);
 

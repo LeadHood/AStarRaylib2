@@ -163,10 +163,10 @@ namespace AStarRaylib.Pathfinders
                 List<Tile> tilesHitByRayCast = HelpMethods.SupercoverLine(tiles, pos, nextPos);
 
                 //Debug color for raycast
-                //foreach (Tile tile in tilesHitByRayCast)
-                //{
-                //    tile.OverrideColor = Color.Yellow;
-                //}
+                foreach (Tile tile in tilesHitByRayCast)
+                {
+                    tile.OverrideColor = Color.Yellow;
+                }
 
                 Tile? hitTile = tilesHitByRayCast.FirstOrDefault(tile => tile.Type == TileType.Obstacle);
 
@@ -184,16 +184,14 @@ namespace AStarRaylib.Pathfinders
 
             pathWithoutCollision.Add(newPath[^1]);
 
-            Console.Clear();
-
             //foreach (Vector2 item in pathWithoutCollision)
             //{
             //    Console.WriteLine(item);
             //}
-            foreach (Vector2 item in newPath)
-            {
-                Console.WriteLine(item);
-            }
+            //foreach (Vector2 item in newPath)
+            //{
+            //    Console.WriteLine(item);
+            //}
 
 
             return pathWithoutCollision;
