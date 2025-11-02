@@ -25,13 +25,14 @@ namespace AStarRaylib
         public const int SCREEN_X = 40;
         public const int SCREEN_Y = 30;
 
-        public const int AGENTS_AMOUNT = 3;
+        const int AGENTS_AMOUNT = 3;
 
         //Endpos in the beginning, it can be changed during runtime
         public static Vector2 EndPos { get; private set;} = new Vector2(39, 15);
 
         //True: Draws which tiles the first agent looked at
         static bool DrawFirstAgentGrid = true;
+        static bool GenerateMaze = false;
 
         //This is for debugging how the algoritm searches, should not be changed.
         static int DebugFrames = 0;
@@ -75,7 +76,10 @@ namespace AStarRaylib
                 //Agents.Add(new Agent(new Pathfinders.AStarBase(), new Vector2(0, y)));
             }
 
-            ObstaclePositions = HelpMethods.GenerateMaze(SCREEN_X, SCREEN_Y);
+            if(GenerateMaze)
+            {
+                ObstaclePositions = HelpMethods.GenerateMaze(SCREEN_X, SCREEN_Y);
+            }
 
             Reset();
         }
