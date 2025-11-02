@@ -152,23 +152,36 @@ namespace AStarRaylib.Pathfinders
 
             List<Vector2> tempPath = [.. newPath];
 
-            //for (int i = 0; i < newPath.Count - 1; i++)
-            //{
-            //    Vector2 pos = newPath[i];
-            //    Vector2 nextPos = newPath[i + 1];
 
-            //    if (HelpMethods.RaycastTiles(tiles, pos, nextPos).Any(tile => tile.Type == TileType.Obstacle))
-            //    {
-            //        Agent newAgent = new Agent(new Pathfinders.AStarBase(), pos);
-            //        newAgent.FindPath(nextPos);
-            //        List<Vector2> pathBetweenRaycast = newAgent.Path;
-            //        pathBetweenRaycast.RemoveAt(pathBetweenRaycast.Count - 1);
-            //        pathBetweenRaycast.RemoveAt(0);
+            //Raycasting for exceptional exceptions
+            for (int i = 0; i < newPath.Count - 1; i++)
+            {
+                Vector2 pos = newPath[i];
+                Vector2 nextPos = newPath[i + 1];
 
-            //        ////Fix this later, it is gonna be very weird
-            //        tempPath.InsertRange(tempPath.IndexOf(newPath[i]), pathBetweenRaycast);
-            //    }
-            //}
+                List<Tile> tilesHitByRayCast = HelpMethods.SupercoverLine(tiles, pos, nextPos);
+
+                //Debug color for raycast
+                foreach (Tile tile in tilesHitByRayCast)
+                {
+                    tile.OverrideColor = Color.Yellow;
+                }
+
+                //Tile? hitTile = tilesHitByRayCast.FirstOrDefault(tile => tile.Type == TileType.Obstacle);
+
+                //if (hitTile != null)
+                //{
+                //    tempPath.Insert(newPath.IndexOf(pos), tilesHitByRayCast[tilesHitByRayCast.IndexOf(hitTile) - 1].Position);
+                //    Agent newAgent = new Agent(new Pathfinders.AStarBase(), hitTile.Position);
+                //    newAgent.FindPath(nextPos);
+                //    List<Vector2> pathBetweenRaycast = newAgent.Path;
+                //    pathBetweenRaycast.RemoveAt(pathBetweenRaycast.Count - 1);
+                //    pathBetweenRaycast.RemoveAt(0);
+
+                //    ////Fix this later, it is gonna be very weird
+                //    tempPath.InsertRange(tempPath.IndexOf(hitTile.Position), pathBetweenRaycast);
+                //}
+            }
 
             return tempPath;
         }

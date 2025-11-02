@@ -56,82 +56,136 @@ namespace AStarRaylib
             return (float)Math.Acos(num2);
         }
 
-
-        public static List<Tile> RaycastTiles(Tile[,] tiles, Vector2 start, Vector2 end)
+        public static List<Tile> SupercoverLine(Tile[,] tiles, Vector2 start, Vector2 end)
         {
-            List<Tile> hitTiles = new();
+            List<Tile> tilesHitByLine = new List<Tile>();
 
-            int width = tiles.GetLength(0);
-            int height = tiles.GetLength(1);
+            int x0 = (int)Math.Floor(start.X);
+            int y0 = (int)Math.Floor(start.Y);
+            int x1 = (int)Math.Floor(end.X);
+            int y1 = (int)Math.Floor(end.Y);
 
+            int dx = Math.Abs(x1 - x0);
+            int dy = Math.Abs(y1 - y0);
 
-            Vector2 rayDir = end - start;
-            float distanceToEnd = rayDir.Length();
+            int sx = x0 < x1 ? 1 : -1;
+            int sy = y0 < y1 ? 1 : -1;
 
-            if (distanceToEnd == 0)
-                return hitTiles; 
+            int err = dx - dy;
+            int e2;
 
-            rayDir /= distanceToEnd; 
+            int x = x0;
+            int y = y0;
 
-            Vector2 mapCheck = new((float)Math.Floor(start.X), (float)Math.Floor(start.Y));
+            tilesHitByLine.Add(tiles[x, y]);
 
-
-            Vector2 step = new(MathF.Sign(rayDir.X), MathF.Sign(rayDir.Y));
-
-
-            Vector2 rayUnitStepSize = new(
-                MathF.Sqrt(1 + (rayDir.Y / rayDir.X) * (rayDir.Y / rayDir.X)),
-                MathF.Sqrt(1 + (rayDir.X / rayDir.Y) * (rayDir.X / rayDir.Y))
-            );
-
-            Vector2 rayLength = Vector2.Zero;
-            Vector2 startOffset = start - mapCheck;
-
-            if (rayDir.X < 0)
-                rayLength.X = startOffset.X * rayUnitStepSize.X;
-            else
-                rayLength.X = (1 - startOffset.X) * rayUnitStepSize.X;
-
-            if (rayDir.Y < 0)
-                rayLength.Y = startOffset.Y * rayUnitStepSize.Y;
-            else
-                rayLength.Y = (1 - startOffset.Y) * rayUnitStepSize.Y;
-
-            float currentDistance = 0;
-
-            while (currentDistance < distanceToEnd)
+            while (x != x1 || y != y1)
             {
-                int x = (int)mapCheck.X;
-                int y = (int)mapCheck.Y;
+                e2 = err;
 
+                int xOld = x;
+                int yOld = y;
 
-                if (x >= 0 && y >= 0 && x < width && y < height)
+                if (2 * e2 > -dy)
                 {
-                    tiles[x, y].OverrideColor = Raylib_cs.Color.Brown;
-                    hitTiles.Add(tiles[x, y]);
-                }
-                else
-                {
-                    break; 
+                    err -= dy;
+                    x += sx;
                 }
 
-                if (rayLength.X < rayLength.Y)
+                if (2 * e2 < dx)
                 {
-                    mapCheck.X += step.X;
-                    currentDistance = rayLength.X;
-                    rayLength.X += rayUnitStepSize.X;
+                    err += dx;
+                    y += sy;
                 }
-                else
+
+                tilesHitByLine.Add(tiles[x, y]);
+
+                if (x != xOld && y != yOld)
                 {
-                    mapCheck.Y += step.Y;
-                    currentDistance = rayLength.Y;
-                    rayLength.Y += rayUnitStepSize.Y;
+                    tilesHitByLine.Add(tiles[x, yOld]);
+                    tilesHitByLine.Add(tiles[xOld, y]);
                 }
             }
 
-            return hitTiles;
+            return tilesHitByLine;
         }
-    
+
+
+        //public static List<Tile> RaycastTiles(Tile[,] tiles, Vector2 start, Vector2 end)
+        //{
+        //    List<Tile> hitTiles = new();
+
+        //    int width = tiles.GetLength(0);
+        //    int height = tiles.GetLength(1);
+
+
+        //    Vector2 rayDir = end - start;
+        //    float distanceToEnd = rayDir.Length();
+
+        //    if (distanceToEnd == 0)
+        //        return hitTiles; 
+
+        //    rayDir /= distanceToEnd; 
+
+        //    Vector2 mapCheck = new((float)Math.Floor(start.X), (float)Math.Floor(start.Y));
+
+
+        //    Vector2 step = new(MathF.Sign(rayDir.X), MathF.Sign(rayDir.Y));
+
+
+        //    Vector2 rayUnitStepSize = new(
+        //        MathF.Sqrt(1 + (rayDir.Y / rayDir.X) * (rayDir.Y / rayDir.X)),
+        //        MathF.Sqrt(1 + (rayDir.X / rayDir.Y) * (rayDir.X / rayDir.Y))
+        //    );
+
+        //    Vector2 rayLength = Vector2.Zero;
+        //    Vector2 startOffset = start - mapCheck;
+
+        //    if (rayDir.X < 0)
+        //        rayLength.X = startOffset.X * rayUnitStepSize.X;
+        //    else
+        //        rayLength.X = (1 - startOffset.X) * rayUnitStepSize.X;
+
+        //    if (rayDir.Y < 0)
+        //        rayLength.Y = startOffset.Y * rayUnitStepSize.Y;
+        //    else
+        //        rayLength.Y = (1 - startOffset.Y) * rayUnitStepSize.Y;
+
+        //    float currentDistance = 0;
+
+        //    while (currentDistance < distanceToEnd)
+        //    {
+        //        int x = (int)mapCheck.X;
+        //        int y = (int)mapCheck.Y;
+
+
+        //        if (x >= 0 && y >= 0 && x < width && y < height)
+        //        {
+        //            tiles[x, y].OverrideColor = Raylib_cs.Color.Brown;
+        //            hitTiles.Add(tiles[x, y]);
+        //        }
+        //        else
+        //        {
+        //            break; 
+        //        }
+
+        //        if (rayLength.X < rayLength.Y)
+        //        {
+        //            mapCheck.X += step.X;
+        //            currentDistance = rayLength.X;
+        //            rayLength.X += rayUnitStepSize.X;
+        //        }
+        //        else
+        //        {
+        //            mapCheck.Y += step.Y;
+        //            currentDistance = rayLength.Y;
+        //            rayLength.Y += rayUnitStepSize.Y;
+        //        }
+        //    }
+
+        //    return hitTiles;
+        //}
+
 
         public static readonly (int dx, int dy)[] NeighborOffsets =
         {

@@ -24,6 +24,8 @@ namespace AStarRaylib
         public int F { get => G + H; }
 
         public Tile? Parent { get; set; }
+        
+        //Debug Variables
         public Color? OverrideColor { get; set; } = null;
 
         public float? DebugAngle { get; set; } = null;
@@ -61,7 +63,8 @@ namespace AStarRaylib
         public void SetValues()
         {
             G = HelpMethods.CalculateG(this, Parent);//HelpMethods.CalculateG(this, Parent);
-            H = HelpMethods.CalculateHPythagoras(this, Program.EndPos);
+            //H = HelpMethods.CalculateHPythagoras(this, Program.EndPos);
+            H = HelpMethods.CalculateHManhattan(this, Program.EndPos);
         }
 
         public void Draw()
