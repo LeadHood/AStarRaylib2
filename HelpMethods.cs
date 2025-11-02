@@ -126,7 +126,7 @@ namespace AStarRaylib
             (-1,  1),          (1,  1),
         };
 
-        //Test från simon malmqvist den store
+        //Test from Simon Malmqvist The Great, This is just to showcase my pathfinding.
         public static List<Vector2> GenerateMaze(int width, int height, int extraPaths = 10)
         {
             Tile[,] maze = new Tile[width, height];

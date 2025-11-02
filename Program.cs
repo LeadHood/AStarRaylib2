@@ -25,7 +25,7 @@ namespace AStarRaylib
         public const int SCREEN_X = 40;
         public const int SCREEN_Y = 30;
 
-        const int AGENTS_AMOUNT = 10;
+        const int AGENTS_AMOUNT = 3;
 
         //Endpos in the beginning, it can be changed during runtime
         public static Vector2 EndPos { get; private set;} = new Vector2(39, 15);
@@ -35,10 +35,11 @@ namespace AStarRaylib
         static bool GenerateMaze = false;
         static bool AgentsWalking = false;
 
+        public static bool DisplayRayCastDebug { get; private set; } = false;
+
         //This is for debugging how the algoritm searches, should not be changed.
         static int DebugFrames = 0;
         static int FrameTimer = 0;
-        public static bool DisplayRayCastDebug { get; private set;} = false;
 
         static List<Agent> Agents = new List<Agent>();
 
@@ -66,10 +67,6 @@ namespace AStarRaylib
 
             InitWindow(SCREEN_X * SQR_PIXEL_SIZE, (SCREEN_Y + 1) * SQR_PIXEL_SIZE, "ASTAR");
             SetTargetFPS(60);
-
-            //Agents.Add(new Agent(new Pathfinders.AStarOptimized(), new Vector2(1, 7)));
-            //Agents.Add(new Agent(new Pathfinders.AStarOptimized(), StartPos));
-            //Agents.Add(new Agent(new Pathfinders.AStarOptimized(), new Vector2(4, 6)));
 
             //Change and add agents here to get many different agents running at the same time
             for (int y = 0; y < Math.Clamp(AGENTS_AMOUNT, 1, SCREEN_Y); y++)
@@ -236,16 +233,12 @@ namespace AStarRaylib
             foreach (Agent agent in Agents)
             {
                 index++;
-                //if(agent.Path.Count != agent.Path.Distinct().Count())
-                //{
-                //    //Console.WriteLine("BRUH MOMENt");
-                //}
                 DrawPath(agent.Path, ColorMapper.ColorsForPaths[index%ColorMapper.ColorsForPaths.Length]);
                 agent.Draw();
             }
 
             DrawText("MouseMode: " + (MouseMode), 10, SQR_PIXEL_SIZE * (SCREEN_Y + 1) - 24, 24, Color.White);
-            DrawText(AgentsWalking ? "Playing" : "Paused", 350, SQR_PIXEL_SIZE * (SCREEN_Y + 1) - 24, 24, Color.White);
+            DrawText(AgentsWalking ? "Walking" : "Standing", 350, SQR_PIXEL_SIZE * (SCREEN_Y + 1) - 24, 24, Color.White);
 
             DrawText("Elapsed time: " + ElapsedMilliseconds + " ms", SQR_PIXEL_SIZE * SCREEN_X - 500, SQR_PIXEL_SIZE * (SCREEN_Y + 1) - 24, 24, Color.White);
 
