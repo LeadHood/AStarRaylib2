@@ -64,7 +64,7 @@ namespace AStarRaylib
         {
             G = HelpMethods.CalculateG(this, Parent);//HelpMethods.CalculateG(this, Parent);
             //H = HelpMethods.CalculateHPythagoras(this, Program.EndPos);
-            H = HelpMethods.CalculateHManhattan(this, Program.EndPos);
+            H = HelpMethods.CalculateHPythagoras(this, Program.EndPos);
         }
 
         public void Draw()

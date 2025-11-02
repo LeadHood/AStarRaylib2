@@ -150,8 +150,7 @@ namespace AStarRaylib.Pathfinders
                 }
             }
 
-            List<Vector2> tempPath = [.. newPath];
-
+            List<Vector2> pathWithoutCollision = new List<Vector2>();
 
             //Raycasting for exceptional exceptions
             for (int i = 0; i < newPath.Count - 1; i++)
@@ -159,31 +158,45 @@ namespace AStarRaylib.Pathfinders
                 Vector2 pos = newPath[i];
                 Vector2 nextPos = newPath[i + 1];
 
+                pathWithoutCollision.Add(pos);
+
                 List<Tile> tilesHitByRayCast = HelpMethods.SupercoverLine(tiles, pos, nextPos);
 
                 //Debug color for raycast
-                foreach (Tile tile in tilesHitByRayCast)
-                {
-                    tile.OverrideColor = Color.Yellow;
-                }
-
-                //Tile? hitTile = tilesHitByRayCast.FirstOrDefault(tile => tile.Type == TileType.Obstacle);
-
-                //if (hitTile != null)
+                //foreach (Tile tile in tilesHitByRayCast)
                 //{
-                //    tempPath.Insert(newPath.IndexOf(pos), tilesHitByRayCast[tilesHitByRayCast.IndexOf(hitTile) - 1].Position);
-                //    Agent newAgent = new Agent(new Pathfinders.AStarBase(), hitTile.Position);
-                //    newAgent.FindPath(nextPos);
-                //    List<Vector2> pathBetweenRaycast = newAgent.Path;
-                //    pathBetweenRaycast.RemoveAt(pathBetweenRaycast.Count - 1);
-                //    pathBetweenRaycast.RemoveAt(0);
-
-                //    ////Fix this later, it is gonna be very weird
-                //    tempPath.InsertRange(tempPath.IndexOf(hitTile.Position), pathBetweenRaycast);
+                //    tile.OverrideColor = Color.Yellow;
                 //}
+
+                Tile? hitTile = tilesHitByRayCast.FirstOrDefault(tile => tile.Type == TileType.Obstacle);
+
+                if (hitTile != null)
+                {
+                    Agent newAgent = new Agent(new Pathfinders.AStarBase(), tilesHitByRayCast[tilesHitByRayCast.IndexOf(hitTile)-1].Position);
+                    newAgent.FindPath(nextPos);
+                    List<Vector2> pathBetweenRaycast = newAgent.Path;
+                    pathBetweenRaycast.RemoveAt(pathBetweenRaycast.Count - 1);
+                    pathBetweenRaycast.RemoveAt(0);
+
+                    pathWithoutCollision.AddRange(pathBetweenRaycast);
+                }
             }
 
-            return tempPath;
+            pathWithoutCollision.Add(newPath[^1]);
+
+            Console.Clear();
+
+            //foreach (Vector2 item in pathWithoutCollision)
+            //{
+            //    Console.WriteLine(item);
+            //}
+            foreach (Vector2 item in newPath)
+            {
+                Console.WriteLine(item);
+            }
+
+
+            return pathWithoutCollision;
         }
         
         private bool IsCorner(Vector2 pos, Tile[,] tiles)

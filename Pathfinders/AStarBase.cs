@@ -101,7 +101,6 @@ namespace AStarRaylib.Pathfinders
             return path;
         }
 
-
         public void ResetBrain()
         {
             FirstIteration = true;
