@@ -172,17 +172,14 @@ namespace AStarRaylib
                 maze[x, y].Type = TileType.Unopened;
             }
 
-            List<Vector2> positions = maze.Cast<Tile>()
-                               .Where(t => t.Type == TileType.Obstacle)
-                               .Select(t => t.Position)
-                               .ToList();
-
-            foreach (var item in positions)
-            {
-                Console.WriteLine(item);
-            }
+            List<Vector2> positions = maze.Cast<Tile>().Where(t => t.Type == TileType.Obstacle).Select(t => t.Position).ToList();
 
             return positions;
+        }
+
+        public static Vector2 PositionToTile(Vector2 pos)
+        {
+            return new Vector2((int)pos.X / Program.SQR_PIXEL_SIZE, (int)pos.Y / Program.SQR_PIXEL_SIZE);
         }
 
     }

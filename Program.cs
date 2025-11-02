@@ -25,7 +25,7 @@ namespace AStarRaylib
         public const int SCREEN_X = 40;
         public const int SCREEN_Y = 30;
 
-        const int AGENTS_AMOUNT = 3;
+        const int AGENTS_AMOUNT = 10;
 
         //Endpos in the beginning, it can be changed during runtime
         public static Vector2 EndPos { get; private set;} = new Vector2(39, 15);
@@ -33,10 +33,12 @@ namespace AStarRaylib
         //True: Draws which tiles the first agent looked at
         static bool DrawFirstAgentGrid = true;
         static bool GenerateMaze = false;
+        static bool AgentsWalking = false;
 
         //This is for debugging how the algoritm searches, should not be changed.
         static int DebugFrames = 0;
         static int FrameTimer = 0;
+        public static bool DisplayRayCastDebug { get; private set;} = false;
 
         static List<Agent> Agents = new List<Agent>();
 
@@ -62,7 +64,7 @@ namespace AStarRaylib
         {
             SetTraceLogLevel(TraceLogLevel.Error);
 
-            InitWindow(SCREEN_X * SQR_PIXEL_SIZE, SCREEN_Y * SQR_PIXEL_SIZE, "ASTAR");
+            InitWindow(SCREEN_X * SQR_PIXEL_SIZE, (SCREEN_Y + 1) * SQR_PIXEL_SIZE, "ASTAR");
             SetTargetFPS(60);
 
             //Agents.Add(new Agent(new Pathfinders.AStarOptimized(), new Vector2(1, 7)));
@@ -115,7 +117,7 @@ namespace AStarRaylib
         static void InputUpdate()
         {
             Vector2 mousePos = GetMousePosition();
-            Vector2 mouseTilePos = new Vector2((int)mousePos.X / SQR_PIXEL_SIZE, (int)mousePos.Y / SQR_PIXEL_SIZE);
+            Vector2 mouseTilePos = HelpMethods.PositionToTile(mousePos);
 
             //Input
             if (IsMouseButtonDown(MouseButton.Left))
@@ -169,6 +171,11 @@ namespace AStarRaylib
                 ObstaclePositions.Clear();
                 Reset();
             }
+
+            if (IsKeyPressed(KeyboardKey.P))
+            {
+                AgentsWalking ^= true; 
+            }
         }
 
         static void RunAgents()
@@ -190,9 +197,19 @@ namespace AStarRaylib
 
             stopwatch.Stop();
 
-            if(stopwatch.Elapsed.TotalMilliseconds > 0.01d)
+            if (stopwatch.Elapsed.TotalMilliseconds > 0.01d)
             {
                 ElapsedMilliseconds = stopwatch.Elapsed.TotalMilliseconds;
+            }
+
+            if (!AgentsWalking)
+            {
+                return;
+            }
+
+            foreach (var agent in Agents)
+            {
+                agent.Walk();
             }
         }
 
@@ -219,11 +236,18 @@ namespace AStarRaylib
             foreach (Agent agent in Agents)
             {
                 index++;
+                //if(agent.Path.Count != agent.Path.Distinct().Count())
+                //{
+                //    //Console.WriteLine("BRUH MOMENt");
+                //}
                 DrawPath(agent.Path, ColorMapper.ColorsForPaths[index%ColorMapper.ColorsForPaths.Length]);
+                agent.Draw();
             }
 
-            DrawText("MouseMode: " + (MouseMode), 10, SQR_PIXEL_SIZE * SCREEN_Y - 24, 24, Color.Gray);
-            DrawText("Elapsed time: " + ElapsedMilliseconds + " ms", SQR_PIXEL_SIZE * SCREEN_X - 500, SQR_PIXEL_SIZE * SCREEN_Y - 24, 24, Color.Gray);
+            DrawText("MouseMode: " + (MouseMode), 10, SQR_PIXEL_SIZE * (SCREEN_Y + 1) - 24, 24, Color.White);
+            DrawText(AgentsWalking ? "Playing" : "Paused", 350, SQR_PIXEL_SIZE * (SCREEN_Y + 1) - 24, 24, Color.White);
+
+            DrawText("Elapsed time: " + ElapsedMilliseconds + " ms", SQR_PIXEL_SIZE * SCREEN_X - 500, SQR_PIXEL_SIZE * (SCREEN_Y + 1) - 24, 24, Color.White);
 
             DrawDebugTiles(Agents[0]);
 
@@ -265,18 +289,8 @@ namespace AStarRaylib
             }
         }
 
-        static void DrawPath(List<Vector2> positions)
-        {
-            for (int i = 0; i < positions.Count - 1; i++)
-            {
-                DrawLineEx(SQR_PIXEL_SIZE * new Vector2(positions[i].X + 0.5f, positions[i].Y + 0.5f), SQR_PIXEL_SIZE * new Vector2(positions[i + 1].X + 0.5f, positions[i + 1].Y + 0.5f), DEBUG_LINE_SIZE, ColorMapper.DebugLineColor);
-            }
-        }
-
         static void DrawPath(List<Vector2> positions, Color color)
         {
-            //Console.WriteLine(positions.Count);
-
             for (int i = 0; i < positions.Count - 1; i++)
             {
                 DrawLineEx(SQR_PIXEL_SIZE * new Vector2(positions[i].X + 0.5f, positions[i].Y + 0.5f), SQR_PIXEL_SIZE * new Vector2(positions[i + 1].X + 0.5f, positions[i + 1].Y + 0.5f), DEBUG_LINE_SIZE, color);
@@ -284,9 +298,7 @@ namespace AStarRaylib
         }
 
         static void Reset()
-        {
-            FrameTimer = 0;
-            
+        {   
             foreach(Agent agent in Agents)
             {
                 agent.Reset();
