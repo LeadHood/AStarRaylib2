@@ -62,7 +62,7 @@ namespace AStarRaylib
 
         public void SetValues()
         {
-            G = HelpMethods.CalculateG(this, Parent);//HelpMethods.CalculateG(this, Parent);
+            G = HelpMethods.CalculateG(this, Parent);
             //H = HelpMethods.CalculateHManhattan(this, Program.EndPos);
             H = HelpMethods.CalculateHPythagoras(this, Program.EndPos);
         }

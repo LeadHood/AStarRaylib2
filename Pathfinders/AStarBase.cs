@@ -25,52 +25,46 @@ namespace AStarRaylib.Pathfinders
             int y = (int)tile.Position.Y;
 
             //Looping around the 8 positions around the tile
-            for (int j = y - 1; j < y + 2; j++)
+            foreach (var (dx, dy) in HelpMethods.NeighborOffsets)
             {
-                for (int i = x - 1; i < x + 2; i++)
+                int i = x + dx;
+                int j = y + dy;
+                //Can't be outside of bounds, therefore continue if the index is.
+                if (i < 0 || i >= tiles.GetLength(0) || j < 0 || j >= tiles.GetLength(1))
                 {
-                    //Can't be outside of bounds, therefore continue if the index is.
-                    if (i < 0 || i >= tiles.GetLength(0) || j < 0 || j >= tiles.GetLength(1))
-                    {
-                        continue;
-                    }
-
-                    Tile curTile = tiles[i, j];
-
-                    int newG = HelpMethods.CalculateG(curTile, tile);
-                    if (curTile.Type == TileType.Opened && (curTile.G > newG))
-                    {
-                        Tile neighbour1 = tiles[i, (int)curTile.Position.Y];
-                        Tile neighbour2 = tiles[(int)curTile.Position.X, j];
-
-                        if (i != x && j != y && !(neighbour1.Type == TileType.Obstacle) && !(neighbour2.Type == TileType.Obstacle))
-                        {
-                            continue;
-                        }
-
-                        curTile.Parent = tile;
-                        curTile.G = newG;
-                        continue;
-                    }
-
-                    if (curTile.Type == TileType.Obstacle || curTile.Type == TileType.Closed || curTile.Type == TileType.Opened)
-                    {
-                        continue;
-                    }
-
-                    //Checking if it is a diagonal move and if it is a obstacle
-                    if (i != x && j != y && (tiles[x, j].Type == TileType.Obstacle || tiles[i, y].Type == TileType.Obstacle))
-                    { 
-                        continue;
-                    }
-
-                    //Setting it open
-                    curTile.Type = TileType.Opened;
-                    curTile.Parent = tile;
-                    curTile.SetValues();
-
-                    OpenedTiles.Add(curTile);
+                    continue;
                 }
+
+                Tile curTile = tiles[i, j];
+
+                int newG = HelpMethods.CalculateG(curTile, tile);
+                if (curTile.Type == TileType.Opened && curTile.G > newG)
+                {
+                    Tile neighbour1 = tiles[i, (int)curTile.Position.Y];
+                    Tile neighbour2 = tiles[(int)curTile.Position.X, j];
+
+                    if (i != x && j != y && !(neighbour1.Type == TileType.Obstacle) && !(neighbour2.Type == TileType.Obstacle))
+                    {
+                        continue;
+                    }
+
+                    curTile.Parent = tile;
+                    curTile.G = newG;
+                    continue;
+                }
+
+                //Checking if it is a diagonal move and if it is a obstacle
+                if (i != x && j != y && (tiles[x, j].Type == TileType.Obstacle || tiles[i, y].Type == TileType.Obstacle) || curTile.Type != TileType.Unopened)
+                { 
+                    continue;
+                }
+
+                //Setting it open
+                curTile.Type = TileType.Opened;
+                curTile.Parent = tile;
+                curTile.SetValues();
+
+                OpenedTiles.Add(curTile);
             }
 
             return null;

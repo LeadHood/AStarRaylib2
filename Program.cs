@@ -16,7 +16,7 @@ namespace AStarRaylib
     class Program
     {
         //Variables to mess around with:
-        const float DEBUG_LINE_SIZE = /*4*/2;
+        const float DEBUG_LINE_SIZE = 2;
 
         public const int SQR_PIXEL_SIZE = 30;
         public const int TEXT_OFFSET = 2;
@@ -25,7 +25,7 @@ namespace AStarRaylib
         public const int SCREEN_X = 40;
         public const int SCREEN_Y = 30;
 
-        const int AGENTS_AMOUNT = 3;
+        const int AGENTS_AMOUNT = 1;
 
         //Endpos in the beginning, it can be changed during runtime
         public static Vector2 EndPos { get; private set;} = new Vector2(39, 15);
@@ -34,12 +34,9 @@ namespace AStarRaylib
         static bool DrawFirstAgentGrid = true;
         static bool GenerateMaze = false;
         static bool AgentsWalking = false;
+        static bool DrawAgents = false;
 
         public static bool DisplayRayCastDebug { get; private set; } = false;
-
-        //This is for debugging how the algoritm searches, should not be changed.
-        static int DebugFrames = 0;
-        static int FrameTimer = 0;
 
         static List<Agent> Agents = new List<Agent>();
 
@@ -65,14 +62,13 @@ namespace AStarRaylib
         {
             SetTraceLogLevel(TraceLogLevel.Error);
 
-            InitWindow(SCREEN_X * SQR_PIXEL_SIZE, (SCREEN_Y + 1) * SQR_PIXEL_SIZE, "ASTAR");
+            InitWindow(SCREEN_X * SQR_PIXEL_SIZE, (SCREEN_Y + 1) * SQR_PIXEL_SIZE, "A-STAR");
             SetTargetFPS(60);
 
             //Change and add agents here to get many different agents running at the same time
             for (int y = 0; y < Math.Clamp(AGENTS_AMOUNT, 1, SCREEN_Y); y++)
             {
                 Agents.Add(new Agent(new Pathfinders.AStarOptimized(), new Vector2(0, y)));
-                //Agents.Add(new Agent(new Pathfinders.AStarBase(), new Vector2(0, y)));
             }
 
             if(GenerateMaze)
@@ -86,29 +82,7 @@ namespace AStarRaylib
         static void Update()
         {
             InputUpdate();
-
-            //Instant pathfinding, which should be used in final release.
-            if(DebugFrames == 0)
-            {
-                RunAgents();
-            }
-
-            #region Debugging pathfinding
-            //Debugging pathfinding
-            //if (FrameTimer >= DebugFrames)
-            //{
-            //    FrameTimer = 0;
-
-            //    if (CurrentPathFinder.FoundPath)
-            //    {
-            //        return;
-            //    }
-
-            //    IterationForAlgoritm();
-            //}
-
-            //FrameTimer++;
-            #endregion
+            RunAgents();
         }
 
         static void InputUpdate()
@@ -117,12 +91,12 @@ namespace AStarRaylib
             Vector2 mouseTilePos = HelpMethods.PositionToTile(mousePos);
 
             //Input
-            if (IsMouseButtonDown(MouseButton.Left))
+            if (IsMouseButtonDown(MouseButton.Left) && mouseTilePos.X >= 0 && mouseTilePos.X < SCREEN_X && mouseTilePos.Y >= 0 && mouseTilePos.Y < SCREEN_Y)
             {
                 switch (MouseMode)
                 {
                     case MouseFunction.Obstacles:
-                        if(!ObstaclePositions.Exists(vec => vec.X == (int)mouseTilePos.X && vec.Y == (int)mouseTilePos.Y))
+                        if(!ObstaclePositions.Contains(mouseTilePos))
                         {
                             ObstaclePositions.Add(mouseTilePos);
                             Reset();
@@ -143,7 +117,7 @@ namespace AStarRaylib
                 switch (MouseMode)
                 {
                     case MouseFunction.Obstacles:
-                        if (ObstaclePositions.Exists(vec => vec.X == (int)mouseTilePos.X && vec.Y == (int)mouseTilePos.Y))
+                        if (ObstaclePositions.Contains(mouseTilePos))
                         {
                             ObstaclePositions.Remove(mouseTilePos);
                             Reset();
@@ -234,7 +208,11 @@ namespace AStarRaylib
             {
                 index++;
                 DrawPath(agent.Path, ColorMapper.ColorsForPaths[index%ColorMapper.ColorsForPaths.Length]);
-                agent.Draw();
+
+                if (DrawAgents)
+                {
+                    agent.Draw();
+                }
             }
 
             DrawText("MouseMode: " + (MouseMode), 10, SQR_PIXEL_SIZE * (SCREEN_Y + 1) - 24, 24, Color.White);

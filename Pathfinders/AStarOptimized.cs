@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
-using System.Diagnostics;
 using Raylib_cs;
 
 namespace AStarRaylib.Pathfinders
@@ -56,13 +55,8 @@ namespace AStarRaylib.Pathfinders
                     continue;
                 }
 
-                if (curTile.Type == TileType.Obstacle || curTile.Type == TileType.Closed || curTile.Type == TileType.Opened)
-                {
-                    continue;
-                }
-
                 //Checking if it is a diagonal move and if it is a obstacle
-                if (i != x && j != y && (tiles[x, j].Type == TileType.Obstacle || tiles[i, y].Type == TileType.Obstacle))
+                if (i != x && j != y && (tiles[x, j].Type == TileType.Obstacle || tiles[i, y].Type == TileType.Obstacle) || curTile.Type != TileType.Unopened)
                 {
                     continue;
                 }
@@ -100,13 +94,11 @@ namespace AStarRaylib.Pathfinders
 
         public List<Vector2> EnhancePath(List<Vector2> path, Tile[,] tiles)
         {
-            List<Vector2> onlyCorners = new List<Vector2> { path[0] };
+            List<Vector2> onlyCorners = [path[0]];
 
             for (int i = 1; i < path.Count - 1; i++)
             {
                 Vector2 currPos = path[i];
-
-                //bool hitRaycast = HelpMethods.RaycastBetween(tiles, path[index - 1], path[index + 1]);
 
                 if (IsCorner(currPos, tiles))
                 {
@@ -150,7 +142,7 @@ namespace AStarRaylib.Pathfinders
                 }
             }
 
-            List<Vector2> pathWithoutCollision = new List<Vector2>();
+            List<Vector2> pathWithoutCollision = [];
 
             //Raycasting for exceptional exceptions
             for (int i = 0; i < newPath.Count - 1; i++)
@@ -234,10 +226,6 @@ namespace AStarRaylib.Pathfinders
 
                 if (tiles[i, j].Type == TileType.Obstacle)
                 {
-                    //Vector2 vecToPrev = Vector2.Normalize(prevTile - pos);
-                    //Vector2 vecToObstacle = Vector2.Normalize(new Vector2(i, j) - pos);
-                    //Vector2 vecToNext = Vector2.Normalize(nextTile - pos);
-
                     Vector2 vecToPrev = prevTile - pos;
                     Vector2 vecToObstacle = new Vector2(i, j) - pos;
                     Vector2 vecToNext = nextTile - pos;
@@ -256,20 +244,7 @@ namespace AStarRaylib.Pathfinders
                     tiles[(int)pos.X, (int)pos.Y].DebugAngle1 = (float)angle1;
                     tiles[(int)pos.X, (int)pos.Y].DebugAngle2 = (float)angle2;
 
-
-
-                    //Console.WriteLine(angle1 + ", " + angle2 + ", " + angle + ", " + pos);
-                    //Console.WriteLine($"{angle1, -20} {angle2, -20} {angle, -20} {pos, -20}");
-
-                    //tiles[(int)pos.X, (int)pos.Y].OverrideColor = Raylib_cs.Color.Yellow;
-
                     double epsilon = 0.01d;
-
-                    //if (angle <= Math.PI + epsilon)
-                    //{
-                    //    return false;
-                    //}
-
 
                     if (angle < Math.PI)
                     {
@@ -283,14 +258,11 @@ namespace AStarRaylib.Pathfinders
             return true;
         }
 
-
         public void ResetBrain()
         {
             FirstIteration = true;
             FoundPath = false;
             OpenedTiles.Clear();
         }
-
-
     }
 }

@@ -11,7 +11,7 @@ namespace AStarRaylib
         public IPathFinder Pathfinder { get; private set; }
         public Vector2 Position { get; set; }
         
-        private int negativeSize = 5;
+        private int NegativeSize = 5;
 
         public List<Vector2> Path { get; set; } = new List<Vector2>();
 
@@ -40,13 +40,7 @@ namespace AStarRaylib
             {
                 for (int x = 0; x < Tiles.GetLength(0); x++)
                 {
-                    if (Program.ObstaclePositions.Exists(vec => (int)vec.X == x && (int)vec.Y == y))
-                    {
-                        Tiles[x, y] = new Tile(new Vector2(x, y), TileType.Obstacle);
-                        continue;
-                    }
-
-                    Tiles[x, y] = new Tile(new Vector2(x, y), TileType.Unopened);
+                    Tiles[x, y] = new Tile(new Vector2(x, y), Program.ObstaclePositions.Contains(new Vector2(x, y)) ? TileType.Obstacle : TileType.Unopened);
                 }
             }
         }
@@ -132,8 +126,8 @@ namespace AStarRaylib
 
         public void Draw()
         {
-            float size = Program.SQR_PIXEL_SIZE - 2 * negativeSize;
-            Vector2 pos = new Vector2((Position.X * Program.SQR_PIXEL_SIZE) + negativeSize, (Position.Y * Program.SQR_PIXEL_SIZE) + negativeSize);
+            float size = Program.SQR_PIXEL_SIZE - 2 * NegativeSize;
+            Vector2 pos = new Vector2((Position.X * Program.SQR_PIXEL_SIZE) + NegativeSize, (Position.Y * Program.SQR_PIXEL_SIZE) + NegativeSize);
 
             Rectangle rect = new Rectangle(pos.X + size / 2, pos.Y + size / 2, size, size);
             Vector2 origin = new Vector2(size / 2, size / 2);
