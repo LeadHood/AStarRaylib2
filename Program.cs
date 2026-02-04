@@ -26,6 +26,9 @@ namespace AStarRaylib
         public const int SCREEN_X = 40;
         public const int SCREEN_Y = 30;
 
+        public const int WINDOW_SIZE_X = SCREEN_X * SQR_PIXEL_SIZE + 250;
+        public const int WINDOW_SIZE_Y = (SCREEN_Y + 1) * SQR_PIXEL_SIZE;
+
         const int AGENTS_AMOUNT = 1;
 
         //Endpos in the beginning, it can be changed during runtime
@@ -41,7 +44,9 @@ namespace AStarRaylib
 
         static List<Agent> Agents = new List<Agent>();
         public static List<Vector2> ObstaclePositions { get; private set; } = new List<Vector2>();
+
         static List<IPathFinder> Pathfinders = new List<IPathFinder>();
+        static int indexOfPathfinder = 1;
 
         static MouseFunction MouseMode;
 
@@ -58,11 +63,6 @@ namespace AStarRaylib
             {
                 Pathfinders.Add((IPathFinder)Activator.CreateInstance(type)!);
             }
-            
-            for (int i = 1; i <= Pathfinders.Count; i++)
-            {
-                Console.WriteLine(i + ": {0}", Pathfinders[i - 1].Name);
-            }
 
             Start();
 
@@ -77,13 +77,13 @@ namespace AStarRaylib
         {
             SetTraceLogLevel(TraceLogLevel.Error);
 
-            InitWindow(SCREEN_X * SQR_PIXEL_SIZE + 100, (SCREEN_Y + 1) * SQR_PIXEL_SIZE, "A-STAR");
+            InitWindow(WINDOW_SIZE_X, WINDOW_SIZE_Y, "A-STAR");
             SetTargetFPS(60);
 
             //Change and add agents here to get many different agents running at the same time
             for (int y = 0; y < Math.Clamp(AGENTS_AMOUNT, 1, SCREEN_Y); y++)
             {
-                Agents.Add(new Agent(Pathfinders[1], new Vector2(0, y)));
+                Agents.Add(new Agent(Pathfinders[indexOfPathfinder - 1], new Vector2(0, y)));
             }
 
             if(GenerateMaze)
@@ -158,13 +158,14 @@ namespace AStarRaylib
                 Reset();
             }
 
-            for (int i = 0; i <= 9; i++)
+            for (int i = 1; i <= 9; i++)
             {
                 if (Raylib.IsKeyPressed(KeyboardKey.Zero + i))
                 {
-                    if (i < Pathfinders.Count)
+                    if (i <= Pathfinders.Count)
                     {
-                        IPathFinder pathfinder = Pathfinders[i];
+                        IPathFinder pathfinder = Pathfinders[i - 1];
+                        indexOfPathfinder = i;
                         
                         foreach(Agent a in Agents)
                         {
@@ -236,6 +237,18 @@ namespace AStarRaylib
             DrawText("MouseMode: " + (MouseMode), 10, SQR_PIXEL_SIZE * (SCREEN_Y + 1) - 24, 24, Color.White);
 
             DrawText("Elapsed time: " + ElapsedMilliseconds + " ms", SQR_PIXEL_SIZE * SCREEN_X - 500, SQR_PIXEL_SIZE * (SCREEN_Y + 1) - 24, 24, Color.White);
+
+            for (int i = 1; i <= Pathfinders.Count; i++)
+            {
+                string text = i + " : " + Pathfinders[i - 1].Name;
+
+                if (i == indexOfPathfinder)
+                {
+                    DrawRectangle(WINDOW_SIZE_X - 235, i * 30, MeasureText(text, 24) + 10, 28, Color.White);
+                }
+
+                DrawText(i + " : " + Pathfinders[i - 1].Name, WINDOW_SIZE_X - 230, i * 30, 24, i == indexOfPathfinder ? Color.Black : Color.White);
+            }
 
             DrawDebugTiles(Agents[0]);
 

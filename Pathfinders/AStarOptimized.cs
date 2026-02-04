@@ -163,7 +163,7 @@ namespace AStarRaylib.Pathfinders
 
                 if (hitTile != null)
                 {
-                    Agent newAgent = new Agent(new Pathfinders.AStarBase(), tilesHitByRayCast[tilesHitByRayCast.IndexOf(hitTile)-1].Position);
+                    Agent newAgent = new Agent(new AStarBase(), tilesHitByRayCast[tilesHitByRayCast.IndexOf(hitTile)-1].Position);
                     newAgent.FindPath(nextPos);
                     List<Vector2> pathBetweenRaycast = newAgent.Path;
                     pathBetweenRaycast.RemoveAt(pathBetweenRaycast.Count - 1);
