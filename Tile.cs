@@ -101,7 +101,7 @@ namespace AStarRaylib
             //DrawText($"{H}", (int)Position.X * Program.SQR_PIXEL_SIZE + Program.TEXT_OFFSET, (int)(Position.Y + 1) * Program.SQR_PIXEL_SIZE - Program.TEXT_OFFSET - (int)MeasureTextEx(GetFontDefault(), "10", Program.FONT_SIZE, 0).Y, Program.FONT_SIZE, ColorMapper.TextColor);
 
             ////F value
-            //DrawText($"{F}", (int)(Position.X + 1) * Program.SQR_PIXEL_SIZE - 2 * Program.TEXT_OFFSET - (int)MeasureTextEx(GetFontDefault(), $"{F}", Program.FONT_SIZE, 0).X, (int)((Position.Y + 0.5f) * Program.SQR_PIXEL_SIZE + Program.TEXT_OFFSET - 0.5f * (int)MeasureTextEx(GetFontDefault(), "10", Program.FONT_SIZE, 0).Y), Program.FONT_SIZE, ColorMapper.TextColor);
+            DrawText($"{F}", (int)(Position.X + 1) * Program.SQR_PIXEL_SIZE - 2 * Program.TEXT_OFFSET - (int)MeasureTextEx(GetFontDefault(), $"{F}", Program.FONT_SIZE, 0).X, (int)((Position.Y + 0.5f) * Program.SQR_PIXEL_SIZE + Program.TEXT_OFFSET - 0.5f * (int)MeasureTextEx(GetFontDefault(), "10", Program.FONT_SIZE, 0).Y), Program.FONT_SIZE, ColorMapper.TextColor);
         }
     }
 }

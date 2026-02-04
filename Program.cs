@@ -1,9 +1,10 @@
-﻿using System;
-using static Raylib_cs.Raylib;
-using Raylib_cs;
-using System.Numerics;
-using System.Linq;
+﻿using Raylib_cs;
+using System;
 using System.Diagnostics;
+using System.Linq;
+using System.Numerics;
+using System.Reflection;
+using static Raylib_cs.Raylib;
 
 namespace AStarRaylib
 {
@@ -30,30 +31,44 @@ namespace AStarRaylib
         //Endpos in the beginning, it can be changed during runtime
         public static Vector2 EndPos { get; private set;} = new Vector2(39, 15);
 
+        static double ElapsedMilliseconds = 0;
+
         //True: Draws which tiles the first agent looked at
         static bool DrawFirstAgentGrid = true;
         static bool GenerateMaze = false;
-        static bool AgentsWalking = false;
         static bool DrawAgents = false;
-
         public static bool DisplayRayCastDebug { get; private set; } = false;
 
         static List<Agent> Agents = new List<Agent>();
-
         public static List<Vector2> ObstaclePositions { get; private set; } = new List<Vector2>();
-
-        static double ElapsedMilliseconds = 0;
+        static List<IPathFinder> Pathfinders = new List<IPathFinder>();
 
         static MouseFunction MouseMode;
 
         static void Main(string[] args)
         {
+            var pathfinderType = typeof(IPathFinder);
+
+            foreach (var type in Assembly.GetAssembly(pathfinderType)!
+                .GetTypes()
+                .Where(t =>
+                    t.IsClass &&
+                    !t.IsAbstract &&
+                    pathfinderType.IsAssignableFrom(t)))
+            {
+                Pathfinders.Add((IPathFinder)Activator.CreateInstance(type)!);
+            }
+            
+            for (int i = 1; i <= Pathfinders.Count; i++)
+            {
+                Console.WriteLine(i + ": {0}", Pathfinders[i - 1].Name);
+            }
+
             Start();
 
             while (!WindowShouldClose())
             {
                 Update();
-
                 Draw();
             }
         }
@@ -62,13 +77,13 @@ namespace AStarRaylib
         {
             SetTraceLogLevel(TraceLogLevel.Error);
 
-            InitWindow(SCREEN_X * SQR_PIXEL_SIZE, (SCREEN_Y + 1) * SQR_PIXEL_SIZE, "A-STAR");
+            InitWindow(SCREEN_X * SQR_PIXEL_SIZE + 100, (SCREEN_Y + 1) * SQR_PIXEL_SIZE, "A-STAR");
             SetTargetFPS(60);
 
             //Change and add agents here to get many different agents running at the same time
             for (int y = 0; y < Math.Clamp(AGENTS_AMOUNT, 1, SCREEN_Y); y++)
             {
-                Agents.Add(new Agent(new Pathfinders.AStarOptimized(), new Vector2(0, y)));
+                Agents.Add(new Agent(Pathfinders[1], new Vector2(0, y)));
             }
 
             if(GenerateMaze)
@@ -143,10 +158,23 @@ namespace AStarRaylib
                 Reset();
             }
 
-            if (IsKeyPressed(KeyboardKey.P))
+            for (int i = 0; i <= 9; i++)
             {
-                AgentsWalking ^= true; 
+                if (Raylib.IsKeyPressed(KeyboardKey.Zero + i))
+                {
+                    if (i < Pathfinders.Count)
+                    {
+                        IPathFinder pathfinder = Pathfinders[i];
+                        
+                        foreach(Agent a in Agents)
+                        {
+                            a.Reset();
+                            a.Pathfinder = pathfinder;
+                        }
+                    }
+                }
             }
+
         }
 
         static void RunAgents()
@@ -156,14 +184,14 @@ namespace AStarRaylib
             //If many agents, running them parellely increases FPS.
             Parallel.ForEach(Agents, agent =>
             {
-                if (agent.Pathfinder.FoundPath)
+                bool foundPath = agent.FindPath(EndPos);
+
+                if (!foundPath)
                 {
                     return;
                 }
 
                 stopwatch.Start();
-
-                agent.FindPath(EndPos);
             });
 
             stopwatch.Stop();
@@ -171,16 +199,6 @@ namespace AStarRaylib
             if (stopwatch.Elapsed.TotalMilliseconds > 0.01d)
             {
                 ElapsedMilliseconds = stopwatch.Elapsed.TotalMilliseconds;
-            }
-
-            if (!AgentsWalking)
-            {
-                return;
-            }
-
-            foreach (var agent in Agents)
-            {
-                agent.Walk();
             }
         }
 
@@ -216,7 +234,6 @@ namespace AStarRaylib
             }
 
             DrawText("MouseMode: " + (MouseMode), 10, SQR_PIXEL_SIZE * (SCREEN_Y + 1) - 24, 24, Color.White);
-            DrawText(AgentsWalking ? "Walking" : "Standing", 350, SQR_PIXEL_SIZE * (SCREEN_Y + 1) - 24, 24, Color.White);
 
             DrawText("Elapsed time: " + ElapsedMilliseconds + " ms", SQR_PIXEL_SIZE * SCREEN_X - 500, SQR_PIXEL_SIZE * (SCREEN_Y + 1) - 24, 24, Color.White);
 

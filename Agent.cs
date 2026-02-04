@@ -8,14 +8,14 @@ namespace AStarRaylib
     internal class Agent
     {
         public Tile[,] Tiles { get; private set; } = new Tile[Program.SCREEN_X, Program.SCREEN_Y];
-        public IPathFinder Pathfinder { get; private set; }
         public Vector2 Position { get; set; }
         
         private int NegativeSize = 5;
+        public IPathFinder Pathfinder;
 
         public List<Vector2> Path { get; set; } = new List<Vector2>();
 
-        public Vector2 StartPos { get; private set;}
+        public Tile StartTile { get; private set;}
 
         private int WalkIndex = 1;
         private float MoveSpeed = 10f;
@@ -29,9 +29,10 @@ namespace AStarRaylib
         {
             Pathfinder = pathfinder;
             Position = startPos;
-            StartPos = startPos;
 
             ResetTiles();
+            StartTile = Tiles[(int)startPos.X, (int)startPos.Y];
+
         }
 
         public void ResetTiles()
@@ -45,64 +46,54 @@ namespace AStarRaylib
             }
         }
 
-        public void FindPath(Vector2 endPos)
+        public bool FindPath(Vector2 endTile)
         {
-            while (!Pathfinder.FoundPath && (Tiles.Cast<Tile>().Where(tile => tile.Type == TileType.Opened).Any() || Pathfinder.FirstIteration))
+            if(Path.Count == 0)
             {
-                Tile? chosenTile = Pathfinder.ChooseLowestF(Tiles, StartPos);
-
-                if (chosenTile == null)
-                {
-                    return;
-                }
-
-                Tile? endingTile = Pathfinder.IterationForTile(chosenTile, Tiles, StartPos, endPos);
-
-                if (endingTile != null)
-                {
-                    Pathfinder.FoundPath = true;
-                    Path = Pathfinder.EnhancePath(endingTile.GetPath(), Tiles);
-                }
+                Path = Pathfinder.FindPath(Tiles, StartTile, Tiles[(int)endTile.X, (int)endTile.Y]);
+                return true;
             }
+
+            return false;
         }
 
-        public void Walk()
-        {
-            if (Path == null || Path.Count < 2 || !CanMove)
-                return;
+        //public void Walk()
+        //{
+        //    if (Path == null || Path.Count < 2 || !CanMove)
+        //        return;
 
-            Vector2 target = Path[WalkIndex];
-            Vector2 dir = target - Position;
-            float distanceToPostion = dir.Length();
+        //    Vector2 target = Path[WalkIndex];
+        //    Vector2 dir = target - Position;
+        //    float distanceToPostion = dir.Length();
 
-            if (distanceToPostion > 0.001f)
-            {
-                //Normalizing
-                dir /= dir.Length();
+        //    if (distanceToPostion > 0.001f)
+        //    {
+        //        //Normalizing
+        //        dir /= dir.Length();
 
-                float targetAngle = MathF.Atan2(dir.Y, dir.X) * 180f / MathF.PI;
-                Rotation = LerpAngle(Rotation, targetAngle, Raylib.GetFrameTime() * RotationSpeed);
+        //        float targetAngle = MathF.Atan2(dir.Y, dir.X) * 180f / MathF.PI;
+        //        Rotation = LerpAngle(Rotation, targetAngle, Raylib.GetFrameTime() * RotationSpeed);
 
-                // Flytta framåt
-                float moveDist = MoveSpeed * Raylib.GetFrameTime();
+        //        // Flytta framåt
+        //        float moveDist = MoveSpeed * Raylib.GetFrameTime();
 
-                if (moveDist >= distanceToPostion)
-                {
-                    Position = target;
-                    WalkIndex++;
+        //        if (moveDist >= distanceToPostion)
+        //        {
+        //            Position = target;
+        //            WalkIndex++;
 
-                    if (WalkIndex >= Path.Count)
-                    {
-                        CanMove = false;
-                        return;
-                    }
-                }
-                else
-                {
-                    Position += dir * moveDist;
-                }
-            }
-        }
+        //            if (WalkIndex >= Path.Count)
+        //            {
+        //                CanMove = false;
+        //                return;
+        //            }
+        //        }
+        //        else
+        //        {
+        //            Position += dir * moveDist;
+        //        }
+        //    }
+        //}
 
         //Random lerping method i found
         private float LerpAngle(float a, float b, float t)
@@ -113,13 +104,6 @@ namespace AStarRaylib
 
         public void Reset()
         {
-            Timer = 0;
-            WalkIndex = 1;
-            CanMove = true;
-
-            StartPos = Position;
-
-            Pathfinder.ResetBrain();
             Path.Clear();            
             ResetTiles();
         }

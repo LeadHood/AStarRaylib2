@@ -2,104 +2,86 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
-using System.Diagnostics;
+using Raylib_cs;
 
 namespace AStarRaylib.Pathfinders
 {
     class AStarBase : IPathFinder
     {
-        public bool FirstIteration { get; private set; } = true;
-        public bool FoundPath { get; set; } = false;
-        public List<Tile> OpenedTiles { get ; set;} = new List<Tile>();
+        string IPathFinder.Name => "AStarBase";
 
-        public Tile? IterationForTile(Tile tile, Tile[,] tiles, Vector2 startPos, Vector2 endPos)
+        public List<Vector2> FindPath(Tile[,] tiles, Tile start, Tile end)
         {
-            tile.Type = TileType.Closed;
+            List<Tile> OpenedTiles = new();
+            Tile currentTile = start;
 
-            if (((int)tile.Position.X == (int)endPos.X) && ((int)tile.Position.Y == (int)endPos.Y))
+            while(currentTile != end)
             {
-                return tile;
-            }
+                int x = (int)currentTile.Position.X;
+                int y = (int)currentTile.Position.Y;
 
-            int x = (int)tile.Position.X;
-            int y = (int)tile.Position.Y;
+                currentTile.Type = TileType.Closed;
 
-            //Looping around the 8 positions around the tile
-            foreach (var (dx, dy) in HelpMethods.NeighborOffsets)
-            {
-                int i = x + dx;
-                int j = y + dy;
-                //Can't be outside of bounds, therefore continue if the index is.
-                if (i < 0 || i >= tiles.GetLength(0) || j < 0 || j >= tiles.GetLength(1))
+                foreach (var (dx, dy) in HelpMethods.NeighborOffsets)
                 {
-                    continue;
-                }
-
-                Tile curTile = tiles[i, j];
-
-                int newG = HelpMethods.CalculateG(curTile, tile);
-                if (curTile.Type == TileType.Opened && curTile.G > newG)
-                {
-                    Tile neighbour1 = tiles[i, (int)curTile.Position.Y];
-                    Tile neighbour2 = tiles[(int)curTile.Position.X, j];
-
-                    if (i != x && j != y && !(neighbour1.Type == TileType.Obstacle) && !(neighbour2.Type == TileType.Obstacle))
+                    int i = x + dx;
+                    int j = y + dy;
+                    //Can't be outside of bounds, therefore continue if the index is.
+                    if (i < 0 || i >= tiles.GetLength(0) || j < 0 || j >= tiles.GetLength(1))
                     {
                         continue;
                     }
 
-                    curTile.Parent = tile;
-                    curTile.G = newG;
-                    continue;
+                    Tile neighbourTile = tiles[i, j];
+
+                    int newG = HelpMethods.CalculateG(neighbourTile, currentTile);
+                    if (neighbourTile.Type == TileType.Opened && neighbourTile.G > newG)
+                    {
+                        Tile neighbour1 = tiles[i, (int)neighbourTile.Position.Y];
+                        Tile neighbour2 = tiles[(int)neighbourTile.Position.X, j];
+
+                        if (i != x && j != y && !(neighbour1.Type == TileType.Obstacle) && !(neighbour2.Type == TileType.Obstacle))
+                        {
+                            continue;
+                        }
+
+                        neighbourTile.Parent = currentTile;
+                        neighbourTile.G = newG;
+                        continue;
+                    }
+
+                    //Checking if it is a diagonal move and if it is a obstacle
+                    if (i != x && j != y && (tiles[x, j].Type == TileType.Obstacle || tiles[i, y].Type == TileType.Obstacle) || neighbourTile.Type != TileType.Unopened)
+                    {
+                        continue;
+                    }
+
+                    //Setting it open
+                    neighbourTile.Type = TileType.Opened;
+                    neighbourTile.Parent = currentTile;
+                    neighbourTile.SetValues();
+
+                    OpenedTiles.Add(neighbourTile);
                 }
 
-                //Checking if it is a diagonal move and if it is a obstacle
-                if (i != x && j != y && (tiles[x, j].Type == TileType.Obstacle || tiles[i, y].Type == TileType.Obstacle) || curTile.Type != TileType.Unopened)
-                { 
-                    continue;
+                if (OpenedTiles.Count == 0)
+                {
+                    return new List<Vector2>();
                 }
 
-                //Setting it open
-                curTile.Type = TileType.Opened;
-                curTile.Parent = tile;
-                curTile.SetValues();
-
-                OpenedTiles.Add(curTile);
+                Tile lowestF = OpenedTiles.MinBy(t => t.F);
+                currentTile = lowestF;
+                OpenedTiles.Remove(lowestF);
             }
 
-            return null;
-        }
-
-        public Tile? ChooseLowestF(Tile[,] tiles, Vector2 startPos)
-        {
-            if (FirstIteration == true)
+            List<Vector2> path = end.GetPath();
+ 
+            foreach (Vector2 v in path)
             {
-                FirstIteration = false;
-                return tiles[(int)startPos.X, (int)startPos.Y];
+                tiles[(int)v.X, (int)v.Y].OverrideColor = Color.DarkBlue;
             }
 
-            Tile? returnTile = OpenedTiles.MinBy(tile => tile.F);
-
-            if (returnTile == null)
-            {
-                return null;
-            }
-
-            OpenedTiles.Remove(returnTile);
-
-            return returnTile;
-        }
-
-        public List<Vector2> EnhancePath(List<Vector2> path, Tile[,] tiles)
-        { 
             return path;
-        }
-
-        public void ResetBrain()
-        {
-            FirstIteration = true;
-            FoundPath = false;
-            OpenedTiles.Clear();
         }
     }
 }
