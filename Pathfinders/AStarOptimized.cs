@@ -6,24 +6,23 @@ using Raylib_cs;
 
 namespace AStarRaylib.Pathfinders
 {
-    class AStarOptimized : IPathFinder
+    class AStarOptimized(Func<Vector2, Vector2, int, int> gEvaluator, Func<Vector2, Vector2, int> hEvalutator, string name) : IPathFinder
     {
-        string IPathFinder.Name => "AStarOptimized";
-
+        string IPathFinder.Name => name;
 
         public List<Vector2> FindPath(Tile[,] tiles, Tile start, Tile end)
         {
-            List<Tile> OpenedTiles = new();
+            List<Tile> OpenedTiles = [];
             Tile currentTile = start;
 
             while (currentTile != end)
             {
-                int x = (int)currentTile.Position.X;
-                int y = (int)currentTile.Position.Y;
+                int x = (int)currentTile!.Position.X;
+                int y = (int)currentTile!.Position.Y;
 
                 currentTile.Type = TileType.Closed;
 
-                foreach (var (dx, dy) in HelpMethods.NeighborOffsets)
+                foreach (var (dx, dy) in MiscMethods.NeighborOffsets)
                 {
                     int i = x + dx;
                     int j = y + dy;
@@ -35,7 +34,7 @@ namespace AStarRaylib.Pathfinders
 
                     Tile neighbourTile = tiles[i, j];
 
-                    int newG = HelpMethods.CalculateG(neighbourTile, currentTile);
+                    int newG = gEvaluator(neighbourTile.Position, currentTile.Position, currentTile.G);
                     if (neighbourTile.Type == TileType.Opened && neighbourTile.G > newG)
                     {
                         Tile neighbour1 = tiles[i, (int)neighbourTile.Position.Y];
@@ -60,7 +59,7 @@ namespace AStarRaylib.Pathfinders
                     //Setting it open
                     neighbourTile.Type = TileType.Opened;
                     neighbourTile.Parent = currentTile;
-                    neighbourTile.SetValues();
+                    neighbourTile.SetValues(gEvaluator, hEvalutator);
 
                     OpenedTiles.Add(neighbourTile);
                 }
@@ -71,8 +70,8 @@ namespace AStarRaylib.Pathfinders
                 }
 
                 Tile lowestF = OpenedTiles.MinBy(t => t.F);
-                currentTile = lowestF;
-                OpenedTiles.Remove(lowestF);
+                currentTile = lowestF!;
+                OpenedTiles.Remove(lowestF!);
             }
 
             List<Vector2> path = end.GetPath();
@@ -98,7 +97,7 @@ namespace AStarRaylib.Pathfinders
                 if (IsCorner(currPos, tiles))
                 {
                     onlyCorners.Add(currPos);
-                    tiles[(int)currPos.X, (int)currPos.Y].OverrideColor = Raylib_cs.Color.DarkPurple;
+                    //tiles[(int)currPos.X, (int)currPos.Y].OverrideColor = Raylib_cs.Color.DarkPurple;
                 }
 
                 continue;
@@ -147,7 +146,7 @@ namespace AStarRaylib.Pathfinders
 
                 pathWithoutCollision.Add(pos);
 
-                List<Tile> tilesHitByRayCast = HelpMethods.SupercoverLine(tiles, pos, nextPos);
+                List<Tile> tilesHitByRayCast = MiscMethods.SupercoverLine(tiles, pos, nextPos);
 
                 //Debug color for raycast
 
@@ -163,12 +162,11 @@ namespace AStarRaylib.Pathfinders
 
                 if (hitTile != null)
                 {
-                    Agent newAgent = new Agent(new AStarBase(), tilesHitByRayCast[tilesHitByRayCast.IndexOf(hitTile)-1].Position);
+                    Agent newAgent = new Agent(new AStarBase(gEvaluator, hEvalutator, "Wow"), tilesHitByRayCast[tilesHitByRayCast.IndexOf(hitTile)-1].Position);
                     newAgent.FindPath(nextPos);
                     List<Vector2> pathBetweenRaycast = newAgent.Path;
                     pathBetweenRaycast.RemoveAt(pathBetweenRaycast.Count - 1);
                     pathBetweenRaycast.RemoveAt(0);
-
                     pathWithoutCollision.AddRange(pathBetweenRaycast);
                 }
             }
@@ -180,7 +178,7 @@ namespace AStarRaylib.Pathfinders
         
         private bool IsCorner(Vector2 pos, Tile[,] tiles)
         {
-            foreach(var (dx, dy) in HelpMethods.CornerOffsets)
+            foreach(var (dx, dy) in MiscMethods.CornerOffsets)
             {
                 int i = (int)pos.X + dx;
                 int j = (int)pos.Y + dy;
@@ -208,7 +206,7 @@ namespace AStarRaylib.Pathfinders
 
         private bool IsFalseCorner(Vector2 pos, Vector2 prevTile, Vector2 nextTile, Tile[,] tiles)
         {
-            foreach (var (dx, dy) in HelpMethods.CornerOffsets)
+            foreach (var (dx, dy) in MiscMethods.CornerOffsets)
             {
                 int i = (int)pos.X + dx;
                 int j = (int)pos.Y + dy;
@@ -230,8 +228,8 @@ namespace AStarRaylib.Pathfinders
                     tiles[(int)pos.X, (int)pos.Y].DebugVector2 = vecToNext;
 
                     //Angle math mathing
-                    double angle1 = HelpMethods.Angle(vecToPrev, vecToObstacle);
-                    double angle2 = HelpMethods.Angle(vecToNext, vecToObstacle);
+                    double angle1 = MiscMethods.Angle(vecToPrev, vecToObstacle);
+                    double angle2 = MiscMethods.Angle(vecToNext, vecToObstacle);
 
                     double angle = angle1 + angle2;
 
@@ -248,7 +246,7 @@ namespace AStarRaylib.Pathfinders
                 }
             }
 
-            tiles[(int)pos.X, (int)pos.Y].OverrideColor = Raylib_cs.Color.Beige;
+            //tiles[(int)pos.X, (int)pos.Y].OverrideColor = Raylib_cs.Color.Beige;
 
             return true;
         }

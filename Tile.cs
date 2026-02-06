@@ -18,8 +18,7 @@ namespace AStarRaylib
 
         public TileType Type { get; set; }
 
-        private int H = 0;
-
+        public int H { get; set; } = 0;
         public int G { get; set; } = 0;
         public int F { get => G + H; }
 
@@ -43,7 +42,6 @@ namespace AStarRaylib
             Type = type;
         }
 
-        //Returns the path from this tile if it is the ending tile
         public List<Vector2> GetPath()
         {
             Tile? tile = this;
@@ -60,16 +58,14 @@ namespace AStarRaylib
             return positions;
         }
 
-        public void SetValues()
+        public void SetValues(Func<Vector2, Vector2, int, int> gEval, Func<Vector2, Vector2, int> hEval)
         {
-            G = HelpMethods.CalculateG(this, Parent);
-            //H = HelpMethods.CalculateHManhattan(this, Program.EndPos);
-            H = HelpMethods.CalculateHPythagoras(this, Program.EndPos);
+            G = gEval(Position, Parent!.Position, Parent.G);
+            H = hEval(Position, Program.EndPos);
         }
 
         public void Draw()
         {
-            //Debugcolor
             Color col = (Position.Equals(Program.EndPos)) ? Raylib_cs.Color.Gray : ColorMapper.GetColorByTileType(this.Type);
             col = OverrideColor != null ? (Color)OverrideColor : col;
 
@@ -81,8 +77,8 @@ namespace AStarRaylib
             if (DebugAngle != null)
             {
                 //DrawText($"{DebugAngle}", (int)(Position.X) * Program.SQR_PIXEL_SIZE + Program.TEXT_OFFSET, (int)(Position.Y) * Program.SQR_PIXEL_SIZE + Program.TEXT_OFFSET, Program.FONT_SIZE, ColorMapper.TextColor);
-                DrawText($"{DebugAngle1}", (int)(Position.X) * Program.SQR_PIXEL_SIZE + Program.TEXT_OFFSET, (int)(Position.Y) * Program.SQR_PIXEL_SIZE + Program.TEXT_OFFSET, Program.FONT_SIZE, ColorMapper.TextColor);
-                DrawText($"{DebugAngle2}", (int)(Position.X) * Program.SQR_PIXEL_SIZE + Program.TEXT_OFFSET, (int)(Position.Y) * Program.SQR_PIXEL_SIZE + Program.TEXT_OFFSET + 10, Program.FONT_SIZE, ColorMapper.TextColor);
+                //DrawText($"{DebugAngle1}", (int)(Position.X) * Program.SQR_PIXEL_SIZE + Program.TEXT_OFFSET, (int)(Position.Y) * Program.SQR_PIXEL_SIZE + Program.TEXT_OFFSET, Program.FONT_SIZE, ColorMapper.TextColor);
+                //DrawText($"{DebugAngle2}", (int)(Position.X) * Program.SQR_PIXEL_SIZE + Program.TEXT_OFFSET, (int)(Position.Y) * Program.SQR_PIXEL_SIZE + Program.TEXT_OFFSET + 10, Program.FONT_SIZE, ColorMapper.TextColor);
             }
 
             if (DebugVector != null)
@@ -101,7 +97,7 @@ namespace AStarRaylib
             //DrawText($"{H}", (int)Position.X * Program.SQR_PIXEL_SIZE + Program.TEXT_OFFSET, (int)(Position.Y + 1) * Program.SQR_PIXEL_SIZE - Program.TEXT_OFFSET - (int)MeasureTextEx(GetFontDefault(), "10", Program.FONT_SIZE, 0).Y, Program.FONT_SIZE, ColorMapper.TextColor);
 
             ////F value
-            DrawText($"{F}", (int)(Position.X + 1) * Program.SQR_PIXEL_SIZE - 2 * Program.TEXT_OFFSET - (int)MeasureTextEx(GetFontDefault(), $"{F}", Program.FONT_SIZE, 0).X, (int)((Position.Y + 0.5f) * Program.SQR_PIXEL_SIZE + Program.TEXT_OFFSET - 0.5f * (int)MeasureTextEx(GetFontDefault(), "10", Program.FONT_SIZE, 0).Y), Program.FONT_SIZE, ColorMapper.TextColor);
+            //DrawText($"{F}", (int)(Position.X + 1) * Program.SQR_PIXEL_SIZE - 2 * Program.TEXT_OFFSET - (int)MeasureTextEx(GetFontDefault(), $"{F}", Program.FONT_SIZE, 0).X, (int)((Position.Y + 0.5f) * Program.SQR_PIXEL_SIZE + Program.TEXT_OFFSET - 0.5f * (int)MeasureTextEx(GetFontDefault(), "10", Program.FONT_SIZE, 0).Y), Program.FONT_SIZE, ColorMapper.TextColor);
         }
     }
 }

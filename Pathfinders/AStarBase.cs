@@ -6,9 +6,9 @@ using Raylib_cs;
 
 namespace AStarRaylib.Pathfinders
 {
-    class AStarBase : IPathFinder
+    class AStarBase(Func<Vector2, Vector2, int, int> gEvaluator, Func<Vector2, Vector2, int> hEvalutator, string name) : IPathFinder
     {
-        string IPathFinder.Name => "AStarBase";
+        string IPathFinder.Name => name;
 
         public List<Vector2> FindPath(Tile[,] tiles, Tile start, Tile end)
         {
@@ -22,7 +22,7 @@ namespace AStarRaylib.Pathfinders
 
                 currentTile.Type = TileType.Closed;
 
-                foreach (var (dx, dy) in HelpMethods.NeighborOffsets)
+                foreach (var (dx, dy) in MiscMethods.NeighborOffsets)
                 {
                     int i = x + dx;
                     int j = y + dy;
@@ -34,7 +34,7 @@ namespace AStarRaylib.Pathfinders
 
                     Tile neighbourTile = tiles[i, j];
 
-                    int newG = HelpMethods.CalculateG(neighbourTile, currentTile);
+                    int newG = gEvaluator(neighbourTile.Position, currentTile.Position, currentTile.G);
                     if (neighbourTile.Type == TileType.Opened && neighbourTile.G > newG)
                     {
                         Tile neighbour1 = tiles[i, (int)neighbourTile.Position.Y];
@@ -59,7 +59,7 @@ namespace AStarRaylib.Pathfinders
                     //Setting it open
                     neighbourTile.Type = TileType.Opened;
                     neighbourTile.Parent = currentTile;
-                    neighbourTile.SetValues();
+                    neighbourTile.SetValues(gEvaluator, hEvalutator);
 
                     OpenedTiles.Add(neighbourTile);
                 }

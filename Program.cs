@@ -1,9 +1,8 @@
-﻿using Raylib_cs;
-using System;
+﻿using AStarRaylib.Evalutators;
+using AStarRaylib.Pathfinders;
+using Raylib_cs;
 using System.Diagnostics;
-using System.Linq;
 using System.Numerics;
-using System.Reflection;
 using static Raylib_cs.Raylib;
 
 namespace AStarRaylib
@@ -16,10 +15,9 @@ namespace AStarRaylib
 
     class Program
     {
-        //Variables to mess around with:
         const float DEBUG_LINE_SIZE = 2;
 
-        public const int SQR_PIXEL_SIZE = 30;
+        public const int SQR_PIXEL_SIZE = 25;
         public const int TEXT_OFFSET = 2;
         public const int FONT_SIZE = 9;
 
@@ -31,12 +29,10 @@ namespace AStarRaylib
 
         const int AGENTS_AMOUNT = 1;
 
-        //Endpos in the beginning, it can be changed during runtime
         public static Vector2 EndPos { get; private set;} = new Vector2(39, 15);
 
         static double ElapsedMilliseconds = 0;
 
-        //True: Draws which tiles the first agent looked at
         static bool DrawFirstAgentGrid = true;
         static bool GenerateMaze = false;
         static bool DrawAgents = false;
@@ -45,25 +41,33 @@ namespace AStarRaylib
         static List<Agent> Agents = new List<Agent>();
         public static List<Vector2> ObstaclePositions { get; private set; } = new List<Vector2>();
 
-        static List<IPathFinder> Pathfinders = new List<IPathFinder>();
-        static int indexOfPathfinder = 1;
+        static int hIndex = 0;
+        static int gIndex = 0;
+        static int pathfinderIndex = 1;
+
+        static readonly List<Func<Vector2, Vector2, int>> hEvaluators = [ 
+            HEvalutators.Manhattan(),
+            HEvalutators.Pythagoras(),
+            HEvalutators.MinMax(),
+        ];
+
+        static readonly List<Func<Vector2, Vector2, int, int>> gEvaluators = [
+            GEvaluators.Distance(),
+            GEvaluators.Straight(),
+        ];
+
+        static List<IPathFinder> GeneratePathfinders() =>
+        [
+            new Pathfinders.AStarBase(gEvaluators[gIndex], hEvaluators[hIndex], "A*Base"),
+            new Pathfinders.AStarOptimized(gEvaluators[gIndex], hEvaluators[hIndex], "A*Optimized"),
+        ];
+
+        static List<IPathFinder> Pathfinders = GeneratePathfinders();
 
         static MouseFunction MouseMode;
 
         static void Main(string[] args)
         {
-            var pathfinderType = typeof(IPathFinder);
-
-            foreach (var type in Assembly.GetAssembly(pathfinderType)!
-                .GetTypes()
-                .Where(t =>
-                    t.IsClass &&
-                    !t.IsAbstract &&
-                    pathfinderType.IsAssignableFrom(t)))
-            {
-                Pathfinders.Add((IPathFinder)Activator.CreateInstance(type)!);
-            }
-
             Start();
 
             while (!WindowShouldClose())
@@ -78,17 +82,19 @@ namespace AStarRaylib
             SetTraceLogLevel(TraceLogLevel.Error);
 
             InitWindow(WINDOW_SIZE_X, WINDOW_SIZE_Y, "A-STAR");
-            SetTargetFPS(60);
+            SetTargetFPS(300);
+            
+            Console.WriteLine(Pathfinders.Count);
 
             //Change and add agents here to get many different agents running at the same time
             for (int y = 0; y < Math.Clamp(AGENTS_AMOUNT, 1, SCREEN_Y); y++)
             {
-                Agents.Add(new Agent(Pathfinders[indexOfPathfinder - 1], new Vector2(0, y)));
+                Agents.Add(new Agent(Pathfinders[pathfinderIndex - 1], new Vector2(0, y)));
             }
 
             if(GenerateMaze)
             {
-                ObstaclePositions = HelpMethods.GenerateMaze(SCREEN_X, SCREEN_Y);
+                ObstaclePositions = MiscMethods.GenerateMaze(SCREEN_X, SCREEN_Y);
             }
 
             Reset();
@@ -103,7 +109,7 @@ namespace AStarRaylib
         static void InputUpdate()
         {
             Vector2 mousePos = GetMousePosition();
-            Vector2 mouseTilePos = HelpMethods.PositionToTile(mousePos);
+            Vector2 mouseTilePos = MiscMethods.PositionToTile(mousePos);
 
             //Input
             if (IsMouseButtonDown(MouseButton.Left) && mouseTilePos.X >= 0 && mouseTilePos.X < SCREEN_X && mouseTilePos.Y >= 0 && mouseTilePos.Y < SCREEN_Y)
@@ -160,24 +166,56 @@ namespace AStarRaylib
 
             for (int i = 1; i <= 9; i++)
             {
-                if (Raylib.IsKeyPressed(KeyboardKey.Zero + i))
+                if (IsKeyPressed(KeyboardKey.Zero + i))
                 {
                     if (i <= Pathfinders.Count)
                     {
-                        IPathFinder pathfinder = Pathfinders[i - 1];
-                        indexOfPathfinder = i;
-                        
-                        foreach(Agent a in Agents)
-                        {
-                            a.Reset();
-                            a.Pathfinder = pathfinder;
-                        }
+                        pathfinderIndex = i;
+                        ResetAgents();
                     }
                 }
             }
 
-        }
+            if (IsKeyPressed(KeyboardKey.Left))
+            {
+                hIndex--; 
+                hIndex = hIndex < 0 ? 0 : hIndex;
+                ResetAgents();
+            }
+            if (IsKeyPressed(KeyboardKey.Right))
+            {
+                hIndex++;
+                hIndex = hIndex >= hEvaluators.Count ? hEvaluators.Count - 1 : hIndex;
 
+                ResetAgents();
+            }
+            if (IsKeyPressed(KeyboardKey.Up))
+            {
+                gIndex++;
+                gIndex = gIndex >= gEvaluators.Count ? gEvaluators.Count - 1 : gIndex;
+
+                ResetAgents();
+            }
+            if (IsKeyPressed(KeyboardKey.Down))
+            {
+                gIndex--;
+                gIndex = gIndex < 0 ? 0 : gIndex;
+
+                ResetAgents();
+            }
+
+        }
+        
+        static void ResetAgents()
+        {
+            foreach (Agent a in Agents)
+            {
+                a.Reset();
+                Pathfinders = GeneratePathfinders();
+                a.Pathfinder = Pathfinders[pathfinderIndex - 1];
+            }
+        }
+        
         static void RunAgents()
         {
             Stopwatch stopwatch = new Stopwatch();
@@ -242,12 +280,12 @@ namespace AStarRaylib
             {
                 string text = i + " : " + Pathfinders[i - 1].Name;
 
-                if (i == indexOfPathfinder)
+                if (i == pathfinderIndex)
                 {
                     DrawRectangle(WINDOW_SIZE_X - 235, i * 30, MeasureText(text, 24) + 10, 28, Color.White);
                 }
 
-                DrawText(i + " : " + Pathfinders[i - 1].Name, WINDOW_SIZE_X - 230, i * 30, 24, i == indexOfPathfinder ? Color.Black : Color.White);
+                DrawText(i + " : " + Pathfinders[i - 1].Name, WINDOW_SIZE_X - 230, i * 30, 24, i == pathfinderIndex ? Color.Black : Color.White);
             }
 
             DrawDebugTiles(Agents[0]);
