@@ -15,16 +15,18 @@ namespace AStarRaylib.Pathfinders
             IPathFinder AStarBase = new AStarBase(gEvaluator, hEvalutator, "AStarBase");
             List<Vector2> path = AStarBase.FindPath(tiles, start, end);
 
-            if (path.Count > 0)
-            {
-                path = EnhancePath(path, tiles);
-            }
+            path = EnhancePath(path, tiles);
 
             return path;
         }
 
         public List<Vector2> EnhancePath(List<Vector2> path, Tile[,] tiles)
         {
+            if(path.Count <= 2)
+            {
+                return path;
+            }
+
             List<Vector2> onlyCorners = [path[0]];
 
             for (int i = 1; i < path.Count - 1; i++)

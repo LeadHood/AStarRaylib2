@@ -27,7 +27,6 @@ namespace AStarRaylib
         public const int WINDOW_SIZE_X = SCREEN_X * SQR_PIXEL_SIZE + 250;
         public const int WINDOW_SIZE_Y = (SCREEN_Y + 1) * SQR_PIXEL_SIZE;
 
-        const int AGENTS_AMOUNT = 1;
 
         public static Vector2 EndPos { get; private set;} = new Vector2(39, 15);
 
@@ -39,6 +38,10 @@ namespace AStarRaylib
         public static bool DisplayRayCastDebug { get; private set; } = false;
 
         static List<Agent> Agents = new List<Agent>();
+        static readonly List<Vector2> AgentStartPositions = [
+            new Vector2(3, 8),
+        ];
+
         public static List<Vector2> ObstaclePositions { get; private set; } = new List<Vector2>();
 
         static int hIndex = 0;
@@ -60,6 +63,7 @@ namespace AStarRaylib
         [
             new Pathfinders.AStarBase(gEvaluators[gIndex], hEvaluators[hIndex], "A*Base"),
             new Pathfinders.AStarOptimized(gEvaluators[gIndex], hEvaluators[hIndex], "A*Optimized"),
+            new Pathfinders.AStarSmoothed(gEvaluators[gIndex], hEvaluators[hIndex], "A*Smoothed"),
         ];
 
         static List<IPathFinder> Pathfinders = GeneratePathfinders();
@@ -87,9 +91,9 @@ namespace AStarRaylib
             Console.WriteLine(Pathfinders.Count);
 
             //Change and add agents here to get many different agents running at the same time
-            for (int y = 0; y < Math.Clamp(AGENTS_AMOUNT, 1, SCREEN_Y); y++)
+            foreach(Vector2 v in AgentStartPositions)
             {
-                Agents.Add(new Agent(Pathfinders[pathfinderIndex - 1], new Vector2(0, y)));
+                Agents.Add(new Agent(Pathfinders[pathfinderIndex - 1], v));
             }
 
             if(GenerateMaze)
