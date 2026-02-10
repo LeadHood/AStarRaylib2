@@ -9,7 +9,7 @@ namespace AStarRaylib.Pathfinders
     {
         public string Name => name;
 
-        private const float RAYCAST_OFFSET = 0.1f;
+        private const float RAYCAST_OFFSET = 0.05f;
 
         public List<Vector2> FindPath(Tile[,] tiles, Tile start, Tile end)
         {
@@ -66,38 +66,6 @@ namespace AStarRaylib.Pathfinders
         }
 
         private bool Walkable(Tile[,] tiles, Vector2 a, Vector2 b)
-        {
-            Vector2 dir = Vector2.Normalize(b - a);
-            Vector2 right = new Vector2(dir.Y, - dir.X);
-
-
-            Vector2[] starts =
-            {
-                a,
-                a + right * RAYCAST_OFFSET,
-                a - right * RAYCAST_OFFSET
-            };
-
-            Vector2[] ends =
-            {
-                b,
-                b + right * RAYCAST_OFFSET,
-                b - right * RAYCAST_OFFSET
-            };
-
-
-            for (int i = 0; i < 3; i++)
-            {
-                if(!RayCast(tiles, starts[i], ends[i]))
-                {
-                    return false;
-                }
-            }
-
-            return true;
-        }
-
-        private bool RayCast(Tile[,] tiles, Vector2 a, Vector2 b)
         {
             List<Tile> hitList = MiscMethods.SupercoverLine(tiles, a, b);
 

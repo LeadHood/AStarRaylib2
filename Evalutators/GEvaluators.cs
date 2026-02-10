@@ -26,7 +26,7 @@ namespace AStarRaylib.Evalutators
                 int y = (int)Math.Abs(pos.Y - parentPos.Y);
 
                 if (x == 1 && y == 1)
-                    return g + 18;
+                    return g + 20;
                 else
                     return g + 10;
             };
