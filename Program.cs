@@ -64,6 +64,7 @@ namespace AStarRaylib
             new Pathfinders.AStarBase(gEvaluators[gIndex], hEvaluators[hIndex], "A*Base"),
             new Pathfinders.AStarOptimized(gEvaluators[gIndex], hEvaluators[hIndex], "A*Optimized"),
             new Pathfinders.AStarSmoothed(gEvaluators[gIndex], hEvaluators[hIndex], "A*Smoothed"),
+            new Pathfinders.DjikstraBase(gEvaluators[gIndex], "DjikstraBase"),
         ];
 
         static List<IPathFinder> Pathfinders = GeneratePathfinders();

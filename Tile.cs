@@ -64,6 +64,12 @@ namespace AStarRaylib
             H = hEval(Position, Program.EndPos);
         }
 
+
+        public void SetValues(Func<Vector2, Vector2, int, int> gEval)
+        {
+            G = gEval(Position, Parent!.Position, Parent.G);
+        }
+
         public void Draw()
         {
             Color col = (Position.Equals(Program.EndPos)) ? Raylib_cs.Color.Gray : ColorMapper.GetColorByTileType(this.Type);

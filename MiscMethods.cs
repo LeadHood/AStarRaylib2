@@ -1,8 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Drawing;
-using System.Linq;
 using System.Numerics;
+using System.Drawing;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -22,15 +21,14 @@ namespace AStarRaylib
             return (float)Math.Acos(num2);
         }
 
-        //Raycast but for raylib. Because unity has it built in, i did not write this myself, just modified it for raylib.
         public static List<Tile> SupercoverLine(Tile[,] tiles, Vector2 start, Vector2 end)
         {
-            List<Tile> tilesHitByLine = new List<Tile>();
+            int x0 = (int)MathF.Floor(start.X);
+            int y0 = (int)MathF.Floor(start.Y);
+            int x1 = (int)MathF.Floor(end.X);
+            int y1 = (int)MathF.Floor(end.Y);
 
-            int x0 = (int)Math.Floor(start.X);
-            int y0 = (int)Math.Floor(start.Y);
-            int x1 = (int)Math.Floor(end.X);
-            int y1 = (int)Math.Floor(end.Y);
+            var result = new HashSet<Tile>();
 
             int dx = Math.Abs(x1 - x0);
             int dy = Math.Abs(y1 - y0);
@@ -38,44 +36,65 @@ namespace AStarRaylib
             int sx = x0 < x1 ? 1 : -1;
             int sy = y0 < y1 ? 1 : -1;
 
-            int err = dx - dy;
-            int e2;
-
             int x = x0;
             int y = y0;
 
-            tilesHitByLine.Add(tiles[x, y]);
+            AddIfValid(result, tiles, x, y);
 
-            while (x != x1 || y != y1)
+            if (dx >= dy)
             {
-                e2 = err;
-
-                int xOld = x;
-                int yOld = y;
-
-                if (2 * e2 > -dy)
+                int err = dx / 2;
+                for (int i = 0; i < dx; i++)
                 {
-                    err -= dy;
                     x += sx;
-                }
+                    err -= dy;
 
-                if (2 * e2 < dx)
+                    if (err < 0)
+                    {
+                        // Vi korsar en horisontell grid-linje
+                        AddIfValid(result, tiles, x - sx, y + sy);
+                        y += sy;
+                        err += dx;
+                    }
+
+                    AddIfValid(result, tiles, x, y);
+                }
+            }
+            else
+            {
+                int err = dy / 2;
+                for (int i = 0; i < dy; i++)
                 {
-                    err += dx;
                     y += sy;
-                }
+                    err -= dx;
 
-                tilesHitByLine.Add(tiles[x, y]);
+                    if (err < 0)
+                    {
+                        // Vi korsar en vertikal grid-linje
+                        AddIfValid(result, tiles, x + sx, y - sy);
+                        x += sx;
+                        err += dy;
+                    }
 
-                if (x != xOld && y != yOld)
-                {
-                    tilesHitByLine.Add(tiles[x, yOld]);
-                    tilesHitByLine.Add(tiles[xOld, y]);
+                    AddIfValid(result, tiles, x, y);
                 }
             }
 
-            return tilesHitByLine;
+            return result.ToList();
         }
+
+        private static void AddIfValid(HashSet<Tile> set, Tile[,] tiles, int x, int y)
+        {
+            if (x >= 0 && y >= 0 &&
+                x < tiles.GetLength(0) &&
+                y < tiles.GetLength(1))
+            {
+                set.Add(tiles[x, y]);
+                //tiles[x, y].OverrideColor = Raylib_cs.Color.Yellow;
+            }
+        }
+
+
 
         public static readonly (int dx, int dy)[] NeighborOffsets =
         {
