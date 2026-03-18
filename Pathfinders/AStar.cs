@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Numerics;
 using Raylib_cs;
 
@@ -11,21 +10,26 @@ namespace AStarRaylib.Pathfinders
         string IPathFinder.Name => name;
 
         public List<Vector2> FindPath(Tile[,] tiles, Tile start, Tile end)
-        {
-            List<Tile> OpenedTiles = new();
+        {   
+            //Sorting by F value
+            //SortedSet<Tile> openedTiles = new SortedSet<Tile>(Comparer<Tile>.Create((a, b) => 
+            //    a.F != b.F ? a.F.CompareTo(b.F) : a.GetHashCode().CompareTo(b.GetHashCode())));
+            List<Tile> openedTiles = new();
+
             Tile currentTile = start;
 
             while(currentTile != end)
             {
+                currentTile!.Type = TileType.Closed;
+
                 int x = (int)currentTile.Position.X;
                 int y = (int)currentTile.Position.Y;
-
-                currentTile.Type = TileType.Closed;
 
                 foreach (var (dx, dy) in MiscMethods.NeighborOffsets)
                 {
                     int i = x + dx;
                     int j = y + dy;
+
                     //Can't be outside of bounds, therefore continue if the index is.
                     if (i < 0 || i >= tiles.GetLength(0) || j < 0 || j >= tiles.GetLength(1))
                     {
@@ -33,12 +37,11 @@ namespace AStarRaylib.Pathfinders
                     }
 
                     Tile neighbourTile = tiles[i, j];
-
                     int newG = gEvaluator(neighbourTile.Position, currentTile.Position, currentTile.G);
                     if (neighbourTile.Type == TileType.Opened && neighbourTile.G > newG)
                     {
-                        Tile neighbour1 = tiles[i, (int)neighbourTile.Position.Y];
-                        Tile neighbour2 = tiles[(int)neighbourTile.Position.X, j];
+                        Tile neighbour1 = tiles[i, y];
+                        Tile neighbour2 = tiles[x, j];
 
                         if (i != x && j != y && !(neighbour1.Type == TileType.Obstacle) && !(neighbour2.Type == TileType.Obstacle))
                         {
@@ -61,17 +64,17 @@ namespace AStarRaylib.Pathfinders
                     neighbourTile.Parent = currentTile;
                     neighbourTile.SetValues(gEvaluator, hEvalutator);
 
-                    OpenedTiles.Add(neighbourTile);
+                    openedTiles.Add(neighbourTile);
                 }
 
-                if (OpenedTiles.Count == 0)
+                if (openedTiles.Count == 0)
                 {
                     return new List<Vector2>();
                 }
 
-                Tile lowestF = OpenedTiles.MinBy(t => t.F);
+                Tile lowestF = openedTiles.MinBy(t => t.F);
                 currentTile = lowestF;
-                OpenedTiles.Remove(lowestF);
+                openedTiles.Remove(lowestF);
             }
 
             List<Vector2> path = end.GetPath();

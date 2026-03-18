@@ -38,8 +38,8 @@ namespace AStarRaylib.Pathfinders
                     int newG = gEvaluator(neighbourTile.Position, currentTile.Position, currentTile.G);
                     if (neighbourTile.Type == TileType.Opened && neighbourTile.G > newG)
                     {
-                        Tile neighbour1 = tiles[i, (int)neighbourTile.Position.Y];
-                        Tile neighbour2 = tiles[(int)neighbourTile.Position.X, j];
+                        Tile neighbour1 = tiles[i, y];
+                        Tile neighbour2 = tiles[x, j];
 
                         if (i != x && j != y && !(neighbour1.Type == TileType.Obstacle) && !(neighbour2.Type == TileType.Obstacle))
                         {
