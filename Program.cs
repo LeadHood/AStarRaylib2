@@ -50,21 +50,16 @@ namespace AStarRaylib
 
         static readonly List<Func<Vector2, Vector2, int>> hEvaluators = [ 
             HEvalutators.Manhattan(),
-            HEvalutators.Pythagoras(),
-            HEvalutators.MinMax(),
         ];
 
         static readonly List<Func<Vector2, Vector2, int, int>> gEvaluators = [
             GEvaluators.Distance(),
-            GEvaluators.Straight(),
         ];
 
         static List<IPathFinder> GeneratePathfinders() =>
         [
-            new Pathfinders.AStarBase(gEvaluators[gIndex], hEvaluators[hIndex], "A*Base"),
-            new Pathfinders.AStarOptimized(gEvaluators[gIndex], hEvaluators[hIndex], "A*Optimized"),
-            new Pathfinders.AStarSmoothed(gEvaluators[gIndex], hEvaluators[hIndex], "A*Smoothed"),
-            new Pathfinders.DjikstraBase(gEvaluators[gIndex], "DjikstraBase"),
+            new Pathfinders.AStar(gEvaluators[0], hEvaluators[0], "A*Base"),
+            new Pathfinders.Djikstra(gEvaluators[0], "DjikstraBase"),
         ];
 
         static List<IPathFinder> Pathfinders = GeneratePathfinders();
@@ -86,7 +81,7 @@ namespace AStarRaylib
         {
             SetTraceLogLevel(TraceLogLevel.Error);
 
-            InitWindow(WINDOW_SIZE_X, WINDOW_SIZE_Y, "A-STAR");
+            InitWindow(WINDOW_SIZE_X, WINDOW_SIZE_Y, "Pathfinding Test");
             SetTargetFPS(300);
             
             Console.WriteLine(Pathfinders.Count);
@@ -226,8 +221,9 @@ namespace AStarRaylib
             Stopwatch stopwatch = new Stopwatch();
 
             //If many agents, running them parellely increases FPS.
-            Parallel.ForEach(Agents, agent =>
-            {
+            //Parallel.ForEach(Agents, agent =>
+            //{
+            foreach(Agent agent in Agents) {
                 bool foundPath = agent.FindPath(EndPos);
 
                 if (!foundPath)
@@ -236,7 +232,9 @@ namespace AStarRaylib
                 }
 
                 stopwatch.Start();
-            });
+            }
+
+            //});
 
             stopwatch.Stop();
 

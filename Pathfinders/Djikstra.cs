@@ -7,7 +7,7 @@ using System.Numerics;
 
 namespace AStarRaylib.Pathfinders
 {
-    class DjikstraBase(Func<Vector2, Vector2, int, int> gEvaluator, string name) : IPathFinder
+    class Djikstra(Func<Vector2, Vector2, int, int> gEvaluator, string name) : IPathFinder
     {
         string IPathFinder.Name => name;
 

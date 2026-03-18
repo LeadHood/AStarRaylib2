@@ -13,7 +13,7 @@ namespace AStarRaylib.Pathfinders
 
         public List<Vector2> FindPath(Tile[,] tiles, Tile start, Tile end)
         {
-            IPathFinder AStarBase = new AStarBase(gEvaluator, hEvalutator, "AStarBase");
+            IPathFinder AStarBase = new AStar(gEvaluator, hEvalutator, "AStarBase");
             List<Vector2> path = AStarBase.FindPath(tiles, start, end);
 
             if (path.Count > 0)

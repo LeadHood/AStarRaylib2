@@ -12,7 +12,7 @@ namespace AStarRaylib.Pathfinders
 
         public List<Vector2> FindPath(Tile[,] tiles, Tile start, Tile end)
         {
-            IPathFinder AStarBase = new AStarBase(gEvaluator, hEvalutator, "AStarBase");
+            IPathFinder AStarBase = new AStar(gEvaluator, hEvalutator, "AStarBase");
             List<Vector2> path = AStarBase.FindPath(tiles, start, end);
 
             path = EnhancePath(path, tiles);
@@ -101,7 +101,7 @@ namespace AStarRaylib.Pathfinders
 
                 if (hitTile != null)
                 {
-                    Agent newAgent = new Agent(new AStarBase(gEvaluator, hEvalutator, "Wow"), tilesHitByRayCast[tilesHitByRayCast.IndexOf(hitTile)-1].Position);
+                    Agent newAgent = new Agent(new AStar(gEvaluator, hEvalutator, "Wow"), tilesHitByRayCast[tilesHitByRayCast.IndexOf(hitTile)-1].Position);
                     newAgent.FindPath(nextPos);
                     List<Vector2> pathBetweenRaycast = newAgent.Path;
                     pathBetweenRaycast.RemoveAt(pathBetweenRaycast.Count - 1);

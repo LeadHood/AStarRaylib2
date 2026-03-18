@@ -6,7 +6,7 @@ using Raylib_cs;
 
 namespace AStarRaylib.Pathfinders
 {
-    class AStarBase(Func<Vector2, Vector2, int, int> gEvaluator, Func<Vector2, Vector2, int> hEvalutator, string name) : IPathFinder
+    class AStar(Func<Vector2, Vector2, int, int> gEvaluator, Func<Vector2, Vector2, int> hEvalutator, string name) : IPathFinder
     {
         string IPathFinder.Name => name;
 
