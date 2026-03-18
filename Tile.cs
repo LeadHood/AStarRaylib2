@@ -12,11 +12,11 @@ namespace AStarRaylib
         Obstacle,
     }
 
-    internal class Tile
+    internal class Tile(Vector2 position, TileType type)
     {
-        public Vector2 Position { get; private set; }
+        public Vector2 Position { get; private set; } = position;
 
-        public TileType Type { get; set; }
+        public TileType Type { get; set; } = type;
 
         public int H { get; set; } = 0;
         public int G { get; set; } = 0;
@@ -34,13 +34,6 @@ namespace AStarRaylib
         public Vector2? DebugVector { get; set; } = null;
         public Vector2? DebugVector1 { get; set; } = null;
         public Vector2? DebugVector2 { get; set; } = null;
-
-
-        public Tile(Vector2 position, TileType type)
-        {
-            Position = position;
-            Type = type;
-        }
 
         public List<Vector2> GetPath()
         {

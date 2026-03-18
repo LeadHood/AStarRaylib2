@@ -1,5 +1,4 @@
 ﻿using AStarRaylib.Evalutators;
-using AStarRaylib.Pathfinders;
 using Raylib_cs;
 using System.Diagnostics;
 using System.Numerics;
@@ -27,42 +26,28 @@ namespace AStarRaylib
         public const int WINDOW_SIZE_X = SCREEN_X * SQR_PIXEL_SIZE + 250;
         public const int WINDOW_SIZE_Y = (SCREEN_Y + 1) * SQR_PIXEL_SIZE;
 
-
         public static Vector2 EndPos { get; private set;} = new Vector2(39, 15);
 
         static double ElapsedMilliseconds = 0;
 
-        static bool DrawFirstAgentGrid = true;
+        static bool DrawAgentGrid = true;
         static bool GenerateMaze = false;
-        static bool DrawAgents = false;
-        public static bool DisplayRayCastDebug { get; private set; } = false;
 
         static List<Agent> Agents = new List<Agent>();
-        static readonly List<Vector2> AgentStartPositions = [
-            new Vector2(3, 8),
-        ];
+        static Vector2 StartPosition = new Vector2(1, 15);
+        static int pathfinderIndex = 0;
 
         public static List<Vector2> ObstaclePositions { get; private set; } = new List<Vector2>();
+        public static bool DisplayRayCastDebug { get; private set; } = false;
 
-        static int hIndex = 0;
-        static int gIndex = 0;
-        static int pathfinderIndex = 1;
+        static readonly Func<Vector2, Vector2, int> hEvaluator = HEvalutators.Manhattan();
+        static readonly Func<Vector2, Vector2, int, int> gEvaluator = GEvaluators.Distance();
 
-        static readonly List<Func<Vector2, Vector2, int>> hEvaluators = [ 
-            HEvalutators.Manhattan(),
-        ];
-
-        static readonly List<Func<Vector2, Vector2, int, int>> gEvaluators = [
-            GEvaluators.Distance(),
-        ];
-
-        static List<IPathFinder> GeneratePathfinders() =>
+        static List<IPathFinder> Pathfinders =
         [
-            new Pathfinders.AStar(gEvaluators[0], hEvaluators[0], "A*Base"),
-            new Pathfinders.Djikstra(gEvaluators[0], "DjikstraBase"),
+            new Pathfinders.AStar(gEvaluator, hEvaluator, "A*"),
+            new Pathfinders.Djikstra(gEvaluator, "Djikstra"),
         ];
-
-        static List<IPathFinder> Pathfinders = GeneratePathfinders();
 
         static MouseFunction MouseMode;
 
@@ -80,16 +65,13 @@ namespace AStarRaylib
         static void Start()
         {
             SetTraceLogLevel(TraceLogLevel.Error);
-
+           
             InitWindow(WINDOW_SIZE_X, WINDOW_SIZE_Y, "Pathfinding Test");
             SetTargetFPS(300);
-            
-            Console.WriteLine(Pathfinders.Count);
-
-            //Change and add agents here to get many different agents running at the same time
-            foreach(Vector2 v in AgentStartPositions)
+           
+            for (int i = 0; i < Pathfinders.Count; i++)
             {
-                Agents.Add(new Agent(Pathfinders[pathfinderIndex - 1], v));
+                Agents.Add(new Agent(Pathfinders[pathfinderIndex], StartPosition));
             }
 
             if(GenerateMaze)
@@ -103,7 +85,7 @@ namespace AStarRaylib
         static void Update()
         {
             InputUpdate();
-            RunAgents();
+            RunAgent();
         }
 
         static void InputUpdate()
@@ -135,15 +117,10 @@ namespace AStarRaylib
 
             if (IsMouseButtonDown(MouseButton.Right))
             {
-                switch (MouseMode)
+                if(MouseMode == MouseFunction.Obstacles && ObstaclePositions.Contains(mouseTilePos))
                 {
-                    case MouseFunction.Obstacles:
-                        if (ObstaclePositions.Contains(mouseTilePos))
-                        {
-                            ObstaclePositions.Remove(mouseTilePos);
-                            Reset();
-                        }
-                        break;
+                    ObstaclePositions.Remove(mouseTilePos);
+                    Reset();
                 }
             }
 
@@ -166,75 +143,38 @@ namespace AStarRaylib
 
             for (int i = 1; i <= 9; i++)
             {
-                if (IsKeyPressed(KeyboardKey.Zero + i))
+                if (!IsKeyPressed(KeyboardKey.Zero + i))
                 {
-                    if (i <= Pathfinders.Count)
-                    {
-                        pathfinderIndex = i;
-                        ResetAgents();
-                    }
+                    continue;
+                }
+
+                if (i <= Pathfinders.Count)
+                {
+                    pathfinderIndex = i - 1;
+                    Reset();
                 }
             }
-
-            if (IsKeyPressed(KeyboardKey.Left))
-            {
-                hIndex--; 
-                hIndex = hIndex < 0 ? 0 : hIndex;
-                ResetAgents();
-            }
-            if (IsKeyPressed(KeyboardKey.Right))
-            {
-                hIndex++;
-                hIndex = hIndex >= hEvaluators.Count ? hEvaluators.Count - 1 : hIndex;
-
-                ResetAgents();
-            }
-            if (IsKeyPressed(KeyboardKey.Up))
-            {
-                gIndex++;
-                gIndex = gIndex >= gEvaluators.Count ? gEvaluators.Count - 1 : gIndex;
-
-                ResetAgents();
-            }
-            if (IsKeyPressed(KeyboardKey.Down))
-            {
-                gIndex--;
-                gIndex = gIndex < 0 ? 0 : gIndex;
-
-                ResetAgents();
-            }
-
         }
-        
-        static void ResetAgents()
+
+        static void Reset()
         {
             foreach (Agent a in Agents)
             {
                 a.Reset();
-                Pathfinders = GeneratePathfinders();
-                a.Pathfinder = Pathfinders[pathfinderIndex - 1];
+                a.Pathfinder = Pathfinders[pathfinderIndex];
             }
         }
         
-        static void RunAgents()
+        static void RunAgent()
         {
             Stopwatch stopwatch = new Stopwatch();
+            stopwatch.Start();
 
-            //If many agents, running them parellely increases FPS.
-            //Parallel.ForEach(Agents, agent =>
-            //{
-            foreach(Agent agent in Agents) {
-                bool foundPath = agent.FindPath(EndPos);
-
-                if (!foundPath)
-                {
-                    return;
-                }
-
-                stopwatch.Start();
+            bool foundPath = Agents[pathfinderIndex].FindPath(EndPos);
+            if (!foundPath)
+            {
+                return;
             }
-
-            //});
 
             stopwatch.Stop();
 
@@ -255,24 +195,16 @@ namespace AStarRaylib
                 tile.Draw();
             }
 
-            if (DrawFirstAgentGrid)
+            if (DrawAgentGrid)
             {
-                DrawTiles(Agents[0]);
+                DrawTiles(Agents[pathfinderIndex]);
             }
 
             DrawGrid();
 
-            int index = 0;
-
             foreach (Agent agent in Agents)
             {
-                index++;
-                DrawPath(agent.Path, ColorMapper.ColorsForPaths[index%ColorMapper.ColorsForPaths.Length]);
-
-                if (DrawAgents)
-                {
-                    agent.Draw();
-                }
+                DrawPath(agent.Path, ColorMapper.ColorsForPaths[0]);
             }
 
             DrawText("MouseMode: " + (MouseMode), 10, SQR_PIXEL_SIZE * (SCREEN_Y + 1) - 24, 24, Color.White);
@@ -281,14 +213,14 @@ namespace AStarRaylib
 
             for (int i = 1; i <= Pathfinders.Count; i++)
             {
-                string text = i + " : " + Pathfinders[i - 1].Name;
+                string text = i + " : " + Pathfinders[i -1].Name;
 
-                if (i == pathfinderIndex)
+                if (i - 1 == pathfinderIndex)
                 {
                     DrawRectangle(WINDOW_SIZE_X - 235, i * 30, MeasureText(text, 24) + 10, 28, Color.White);
                 }
 
-                DrawText(i + " : " + Pathfinders[i - 1].Name, WINDOW_SIZE_X - 230, i * 30, 24, i == pathfinderIndex ? Color.Black : Color.White);
+                DrawText(i + " : " + Pathfinders[i - 1].Name, WINDOW_SIZE_X - 230, i * 30, 24, i - 1 == pathfinderIndex ? Color.Black : Color.White);
             }
 
             DrawDebugTiles(Agents[0]);
@@ -336,14 +268,6 @@ namespace AStarRaylib
             for (int i = 0; i < positions.Count - 1; i++)
             {
                 DrawLineEx(SQR_PIXEL_SIZE * new Vector2(positions[i].X + 0.5f, positions[i].Y + 0.5f), SQR_PIXEL_SIZE * new Vector2(positions[i + 1].X + 0.5f, positions[i + 1].Y + 0.5f), DEBUG_LINE_SIZE, color);
-            }
-        }
-
-        static void Reset()
-        {   
-            foreach(Agent agent in Agents)
-            {
-                agent.Reset();
             }
         }
     }
