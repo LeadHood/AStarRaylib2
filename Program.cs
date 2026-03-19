@@ -45,7 +45,7 @@ namespace AStarRaylib
         static List<IPathFinder> Pathfinders =
         [
             new Pathfinders.AStar(gEvaluator, hEvaluator, "A-Star"),
-            new Pathfinders.Djikstra(gEvaluator, "Djikstra"),
+            new Pathfinders.Dijkstra(gEvaluator, "Djikstra"),
             new Pathfinders.Greedy(hEvaluator, "Greedy")
         ];
 

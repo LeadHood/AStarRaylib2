@@ -7,13 +7,13 @@ using System.Numerics;
 
 namespace AStarRaylib.Pathfinders
 {
-    class Djikstra(Func<Vector2, Vector2, int, int> gEvaluator, string name) : IPathFinder
+    class Dijkstra(Func<Vector2, Vector2, int, int> gEvaluator, string name) : IPathFinder
     {
         string IPathFinder.Name => name;
 
         public List<Vector2> FindPath(Tile[,] tiles, Tile start, Tile end)
         {
-            List<Tile> OpenedTiles = new();
+            List<Tile> OpenedTiles = [];
             Tile currentTile = start;
 
             while (currentTile != end)
