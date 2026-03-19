@@ -56,6 +56,11 @@ namespace AStarRaylib
             G = gEval(Position, Parent!.Position, Parent.G);
             H = hEval(Position, Program.EndPos);
         }
+        
+        public void SetValues(Func<Vector2, Vector2, int> hEval)
+        {
+            H = hEval(Position, Program.EndPos);
+        }
 
 
         public void SetValues(Func<Vector2, Vector2, int, int> gEval)

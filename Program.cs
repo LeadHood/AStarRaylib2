@@ -26,18 +26,17 @@ namespace AStarRaylib
         public const int WINDOW_SIZE_X = SCREEN_X * SQR_PIXEL_SIZE + 250;
         public const int WINDOW_SIZE_Y = (SCREEN_Y + 1) * SQR_PIXEL_SIZE;
 
-        public static Vector2 EndPos { get; private set;} = new Vector2(39, 15);
-
         static double ElapsedMilliseconds = 0;
-
-        static bool DrawAgentGrid = true;
-        static bool GenerateMaze = false;
-
-        static List<Agent> Agents = new List<Agent>();
-        static Vector2 StartPosition = new Vector2(1, 15);
         static int pathfinderIndex = 0;
 
-        public static List<Vector2> ObstaclePositions { get; private set; } = new List<Vector2>();
+        private readonly static bool DrawAgentGrid = true;
+        private readonly static bool GenerateMaze = false;
+
+        static List<Agent> Agents = [];
+        static Vector2 StartPosition = new (1, 15);
+        public static Vector2 EndPos { get; private set;} = new (39, 15);
+
+        public static List<Vector2> ObstaclePositions { get; private set; } = []; 
         public static bool DisplayRayCastDebug { get; private set; } = false;
 
         static readonly Func<Vector2, Vector2, int> hEvaluator = HEvalutators.Manhattan();
@@ -45,8 +44,9 @@ namespace AStarRaylib
 
         static List<IPathFinder> Pathfinders =
         [
-            new Pathfinders.AStar(gEvaluator, hEvaluator, "A*"),
+            new Pathfinders.AStar(gEvaluator, hEvaluator, "A-Star"),
             new Pathfinders.Djikstra(gEvaluator, "Djikstra"),
+            new Pathfinders.Greedy(hEvaluator, "Greedy")
         ];
 
         static MouseFunction MouseMode;
