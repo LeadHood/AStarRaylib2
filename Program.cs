@@ -2,6 +2,7 @@
 using Raylib_cs;
 using System.Diagnostics;
 using System.Numerics;
+using System.Text.Json;
 using static Raylib_cs.Raylib;
 
 namespace AStarRaylib
@@ -41,11 +42,14 @@ namespace AStarRaylib
 
         static readonly Func<Vector2, Vector2, int> hEvaluator = HEvalutators.Manhattan();
         static readonly Func<Vector2, Vector2, int, int> gEvaluator = GEvaluators.Distance();
+        
+        static readonly string savePath = "../../../Data/Maps/map.json";
+        static readonly string loadPath = "../../../Data/Maps/map.json";
 
         static List<IPathFinder> Pathfinders =
         [
             new Pathfinders.AStar(gEvaluator, hEvaluator, "A-Star"),
-            new Pathfinders.Dijkstra(gEvaluator, "Djikstra"),
+            new Pathfinders.Dijkstra(gEvaluator, "Dijkstra"),
             new Pathfinders.Greedy(hEvaluator, "Greedy")
         ];
 
@@ -71,7 +75,7 @@ namespace AStarRaylib
            
             for (int i = 0; i < Pathfinders.Count; i++)
             {
-                Agents.Add(new Agent(Pathfinders[pathfinderIndex], StartPosition));
+                Agents.Add(new Agent(Pathfinders[i], StartPosition));
             }
 
             if(GenerateMaze)
@@ -141,6 +145,23 @@ namespace AStarRaylib
                 Reset();
             }
 
+            if (IsKeyPressed(KeyboardKey.Enter))
+            {
+                RunTests();
+            }
+
+            //if (IsKeyPressed(KeyboardKey.S))
+            //{
+            //    SaveObstacles(ObstaclePositions, savePath);
+            //    Reset();
+            //}
+
+            //if (IsKeyPressed(KeyboardKey.L))
+            //{
+            //    ObstaclePositions = LoadObstacles(loadPath);
+            //    Reset();
+            //}
+
             for (int i = 1; i <= 9; i++)
             {
                 if (!IsKeyPressed(KeyboardKey.Zero + i))
@@ -161,7 +182,32 @@ namespace AStarRaylib
             foreach (Agent a in Agents)
             {
                 a.Reset();
-                a.Pathfinder = Pathfinders[pathfinderIndex];
+            }
+        }
+
+        static void RunTests()
+        {
+            (int, double)[] averageTimes = new (int, double)[Agents.Count];
+
+            for (int i = 0; i < 1000; i++) { 
+                for (int j = 0; j < Agents.Count; j++)
+                {
+                    Agents[j].Reset();
+                    
+                    Stopwatch stopwatch = new();
+                    stopwatch.Start();
+
+                    Agents[j].FindPath(EndPos);
+                    stopwatch.Stop();
+
+                    averageTimes[j].Item2 = (averageTimes[j].Item1 * averageTimes[j].Item2 + stopwatch.Elapsed.TotalMilliseconds) / (averageTimes[j].Item1 + 1);
+                    averageTimes[j].Item1++;
+                }
+            }
+
+            for (int i = 0; i < Agents.Count; i++)
+            {
+                Console.WriteLine($"Agent {i}, ({Agents[i].Pathfinder.Name}) had an average of: {averageTimes[i].Item2}");
             }
         }
         
@@ -270,5 +316,20 @@ namespace AStarRaylib
                 DrawLineEx(SQR_PIXEL_SIZE * new Vector2(positions[i].X + 0.5f, positions[i].Y + 0.5f), SQR_PIXEL_SIZE * new Vector2(positions[i + 1].X + 0.5f, positions[i + 1].Y + 0.5f), DEBUG_LINE_SIZE, color);
             }
         }
+
+        //public static void SaveObstacles(List<Vector2> positions, string filePath)
+        //{
+        //    string json = JsonSerializer.Serialize(positions, new JsonSerializerOptions { WriteIndented = true });
+        //    File.WriteAllText(filePath, json);
+        //}
+
+        //public static List<Vector2> LoadObstacles(string filePath)
+        //{
+        //    if (!File.Exists(filePath))
+        //        return new List<Vector2>();
+
+        //    string json = File.ReadAllText(filePath);
+        //    return JsonSerializer.Deserialize<List<Vector2>>(json) ?? new List<Vector2>();
+        //}
     }
 }
