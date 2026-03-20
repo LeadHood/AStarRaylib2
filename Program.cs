@@ -13,7 +13,7 @@ namespace AStarRaylib
         GoalPos,
     }
 
-    class Program
+    partial class Program
     {
         const float DEBUG_LINE_SIZE = 2;
 
@@ -43,8 +43,10 @@ namespace AStarRaylib
         static readonly Func<Vector2, Vector2, int> hEvaluator = HEvalutators.Manhattan();
         static readonly Func<Vector2, Vector2, int, int> gEvaluator = GEvaluators.Distance();
         
-        static readonly string savePath = "../../../Data/Maps/map.json";
-        static readonly string loadPath = "../../../Data/Maps/map.json";
+        static readonly string savePath = "../../../Data/Maps/closedMap.json";
+        static readonly string loadPath = "../../../Data/Maps/.json";
+
+        static readonly string dataSavePath = "../../../Data/Results/data.txt";
 
         static List<IPathFinder> Pathfinders =
         [
@@ -150,17 +152,17 @@ namespace AStarRaylib
                 RunTests();
             }
 
-            //if (IsKeyPressed(KeyboardKey.S))
-            //{
-            //    SaveObstacles(ObstaclePositions, savePath);
-            //    Reset();
-            //}
+            if (IsKeyPressed(KeyboardKey.S))
+            {
+                SaveObstacles(ObstaclePositions, savePath);
+                Reset();
+            }
 
-            //if (IsKeyPressed(KeyboardKey.L))
-            //{
-            //    ObstaclePositions = LoadObstacles(loadPath);
-            //    Reset();
-            //}
+            if (IsKeyPressed(KeyboardKey.L))
+            {
+                ObstaclePositions = LoadObstacles(loadPath);
+                Reset();
+            }
 
             for (int i = 1; i <= 9; i++)
             {
@@ -205,8 +207,10 @@ namespace AStarRaylib
                 }
             }
 
+            File.AppendAllText(dataSavePath, $"{savePath}:\n");
             for (int i = 0; i < Agents.Count; i++)
             {
+                File.AppendAllText(dataSavePath, $"Agent {i}, ({Agents[i].Pathfinder.Name}) had an average of: {averageTimes[i].Item2}\n");
                 Console.WriteLine($"Agent {i}, ({Agents[i].Pathfinder.Name}) had an average of: {averageTimes[i].Item2}");
             }
         }
@@ -317,19 +321,26 @@ namespace AStarRaylib
             }
         }
 
-        //public static void SaveObstacles(List<Vector2> positions, string filePath)
-        //{
-        //    string json = JsonSerializer.Serialize(positions, new JsonSerializerOptions { WriteIndented = true });
-        //    File.WriteAllText(filePath, json);
-        //}
+        public static void SaveObstacles(List<Vector2> positions, string filePath)
+        {
+            List<Vector2Int> intVectors = positions.Select(v => new Vector2Int((int)v.X, (int)v.Y)).ToList();
+            string json = JsonSerializer.Serialize(intVectors, new JsonSerializerOptions { WriteIndented = true, IncludeFields = true });
+            Console.WriteLine(json);
+            File.WriteAllText(filePath, json);
+        }
 
-        //public static List<Vector2> LoadObstacles(string filePath)
-        //{
-        //    if (!File.Exists(filePath))
-        //        return new List<Vector2>();
+        public static List<Vector2> LoadObstacles(string filePath)
+        {
+            if (!File.Exists(filePath))
+                return new List<Vector2>();
 
-        //    string json = File.ReadAllText(filePath);
-        //    return JsonSerializer.Deserialize<List<Vector2>>(json) ?? new List<Vector2>();
-        //}
+            string json = File.ReadAllText(filePath);
+            Console.WriteLine(json);
+            JsonSerializerOptions options = new JsonSerializerOptions{ IncludeFields = true};
+            List<Vector2Int> intVectors = JsonSerializer.Deserialize<List<Vector2Int>>(json, options);
+            List<Vector2> positions = intVectors.Select(v => new Vector2(v.x, v.y)).ToList();
+
+            return positions; 
+        }
     }
 }
