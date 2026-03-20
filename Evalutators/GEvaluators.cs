@@ -4,7 +4,7 @@ namespace AStarRaylib.Evalutators
 {
     static class GEvaluators
     {
-        public static Func<Vector2, Vector2, int, int> Distance()
+        public static Func<Vector2Int, Vector2Int, int, int> Distance()
         {
             return (pos, parentPos, g) =>
             {
@@ -18,7 +18,7 @@ namespace AStarRaylib.Evalutators
             };
         }
 
-        public static Func<Vector2, Vector2, int, int> Straight()
+        public static Func<Vector2Int, Vector2Int, int, int> Straight()
         {
             return (pos, parentPos, g) =>
             {

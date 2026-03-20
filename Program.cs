@@ -26,7 +26,7 @@ namespace AStarRaylib
 
         public const int WINDOW_SIZE_X = SCREEN_X * SQR_PIXEL_SIZE + 250;
         public const int WINDOW_SIZE_Y = (SCREEN_Y + 1) * SQR_PIXEL_SIZE;
-
+        
         static double ElapsedMilliseconds = 0;
         static int pathfinderIndex = 0;
 
@@ -35,13 +35,13 @@ namespace AStarRaylib
 
         static List<Agent> Agents = [];
         static Vector2 StartPosition = new (1, 15);
-        public static Vector2 EndPos { get; private set;} = new (39, 15);
+        public static Vector2Int EndPos { get; private set;} = new (39, 15);
 
-        public static List<Vector2> ObstaclePositions { get; private set; } = []; 
+        public static List<Vector2Int> ObstaclePositions { get; private set; } = []; 
         public static bool DisplayRayCastDebug { get; private set; } = false;
 
-        static readonly Func<Vector2, Vector2, int> hEvaluator = HEvalutators.Manhattan();
-        static readonly Func<Vector2, Vector2, int, int> gEvaluator = GEvaluators.Distance();
+        static readonly Func<Vector2Int, Vector2Int, int> hEvaluator = HEvalutators.Manhattan();
+        static readonly Func<Vector2Int, Vector2Int, int, int> gEvaluator = GEvaluators.Distance();
         
         static readonly string savePath = "../../../Data/Maps/map.json";
         static readonly string loadPath = "../../../Data/Maps/map.json";
@@ -94,8 +94,8 @@ namespace AStarRaylib
 
         static void InputUpdate()
         {
-            Vector2 mousePos = GetMousePosition();
-            Vector2 mouseTilePos = MiscMethods.PositionToTile(mousePos);
+            Vector2Int mousePos = GetMousePosition();
+            Vector2Int mouseTilePos = MiscMethods.PositionToTile(mousePos);
 
             //Input
             if (IsMouseButtonDown(MouseButton.Left) && mouseTilePos.X >= 0 && mouseTilePos.X < SCREEN_X && mouseTilePos.Y >= 0 && mouseTilePos.Y < SCREEN_Y)
@@ -309,7 +309,7 @@ namespace AStarRaylib
             }
         }
 
-        static void DrawPath(List<Vector2> positions, Color color)
+        static void DrawPath(List<Vector2Int> positions, Color color)
         {
             for (int i = 0; i < positions.Count - 1; i++)
             {
