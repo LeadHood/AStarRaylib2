@@ -63,7 +63,7 @@ namespace AStarRaylib
         }
 
 
-        public void SetValues(Func<Vector2Int, Vector2Int, int, int> gEval)
+        public void SetValues(Func<Vector2, Vector2, int, int> gEval)
         {
             G = gEval(Position, Parent!.Position, Parent.G);
         }
@@ -89,9 +89,9 @@ namespace AStarRaylib
             {
                 int thickness = 3;
 
-                //DrawLineEx((Position + new Vector2Int(0.5f, 0.5f)) * (Program.SQR_PIXEL_SIZE), ((Position + new Vector2Int(0.5f, 0.5f) + (Vector2Int)DebugVector) * (Program.SQR_PIXEL_SIZE)), thickness, Color.LightGray);
-                //DrawLineEx((Position + new Vector2Int(0.5f, 0.5f)) * (Program.SQR_PIXEL_SIZE), ((Position + new Vector2Int(0.5f, 0.5f) + (Vector2Int)DebugVector1!) * (Program.SQR_PIXEL_SIZE)), thickness, Color.Black);
-                //DrawLineEx((Position + new Vector2Int(0.5f, 0.5f)) * (Program.SQR_PIXEL_SIZE), ((Position + new Vector2(0.5f, 0.5f) + (Vector2)DebugVector2!) * (Program.SQR_PIXEL_SIZE)), thickness, Color.Black);
+                //DrawLineEx((Position + new Vector2(0.5f, 0.5f)) * (Program.SQR_PIXEL_SIZE), ((Position + new Vector2(0.5f, 0.5f) + (Vector2)DebugVector) * (Program.SQR_PIXEL_SIZE)), thickness, Color.LightGray);
+                //DrawLineEx((Position + new Vector2(0.5f, 0.5f)) * (Program.SQR_PIXEL_SIZE), ((Position + new Vector2(0.5f, 0.5f) + (Vector2)DebugVector1!) * (Program.SQR_PIXEL_SIZE)), thickness, Color.Black);
+                //DrawLineEx((Position + new Vector2(0.5f, 0.5f)) * (Program.SQR_PIXEL_SIZE), ((Position + new Vector2(0.5f, 0.5f) + (Vector2)DebugVector2!) * (Program.SQR_PIXEL_SIZE)), thickness, Color.Black);
             }
 
             ////G value

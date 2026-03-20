@@ -7,15 +7,15 @@ namespace AStarRaylib
 {
     internal class Agent
     {
-        public Vector2Int Position { get; set; }
-        public List<Vector2Int> Path { get; set; } = new List<Vector2Int>();
+        public Vector2 Position { get; set; }
+        public List<Vector2> Path { get; set; } = new List<Vector2>();
 
         public Tile StartTile { get; private set;}
         public Tile[,] Tiles { get; private set; } = new Tile[Program.SCREEN_X, Program.SCREEN_Y];
 
         public IPathFinder Pathfinder;
 
-        public Agent(IPathFinder pathfinder, Vector2Int startPos)
+        public Agent(IPathFinder pathfinder, Vector2 startPos)
         {
             Pathfinder = pathfinder;
             Position = startPos;
@@ -30,12 +30,12 @@ namespace AStarRaylib
             {
                 for (int x = 0; x < Tiles.GetLength(0); x++)
                 {
-                    Tiles[x, y] = new Tile(new Vector2Int(x, y), Program.ObstaclePositions.Contains(new Vector2Int(x, y)) ? TileType.Obstacle : TileType.Unopened);
+                    Tiles[x, y] = new Tile(new Vector2(x, y), Program.ObstaclePositions.Contains(new Vector2(x, y)) ? TileType.Obstacle : TileType.Unopened);
                 }
             }
         }
 
-        public bool FindPath(Vector2Int endTile)
+        public bool FindPath(Vector2 endTile)
         {
             if(Path.Count == 0)
             {

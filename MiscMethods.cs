@@ -6,23 +6,6 @@ using System.Text;
 
 namespace AStarRaylib
 {
-    public struct Vector2Int
-    {
-        public int X { get; set; }
-        public int Y { get; set; }
-
-        public Vector2Int(int x, int y)
-        {
-            X = x;
-            Y = y;
-        }
-
-        public static explicit operator Vector2(Vector2Int v)
-        {
-            return new Vector2(v.X, v.Y);
-        }
-    }
-
     static class MiscMethods
     {
         public static float Angle(Vector2 from, Vector2 to)
@@ -110,6 +93,8 @@ namespace AStarRaylib
             }
         }
 
+
+
         public static readonly (int dx, int dy)[] NeighborOffsets =
         {
             (-1, -1), (0, -1), (1, -1),
@@ -179,5 +164,6 @@ namespace AStarRaylib
         {
             return new Vector2((int)pos.X / Program.SQR_PIXEL_SIZE, (int)pos.Y / Program.SQR_PIXEL_SIZE);
         }
+
     }
 }

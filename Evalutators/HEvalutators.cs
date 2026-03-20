@@ -4,7 +4,7 @@ namespace AStarRaylib.Evalutators
 {
     static class HEvalutators
     {
-        public static Func<Vector2Int, Vector2Int, int> Manhattan()
+        public static Func<Vector2, Vector2, int> Manhattan()
         {
             return (pos, endPos) =>
             {
@@ -14,7 +14,7 @@ namespace AStarRaylib.Evalutators
             };
         }
 
-        public static Func<Vector2Int, Vector2Int, int> Pythagoras()
+        public static Func<Vector2, Vector2, int> Pythagoras()
         {
             return (pos, endPos) =>
             {
@@ -24,7 +24,7 @@ namespace AStarRaylib.Evalutators
             };
         }
 
-        public static Func<Vector2Int, Vector2Int, int> MinMax()
+        public static Func<Vector2, Vector2, int> MinMax()
         {
             return (pos, endPos) =>
             {
