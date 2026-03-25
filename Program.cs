@@ -34,8 +34,9 @@ namespace AStarRaylib
         private readonly static bool GenerateMaze = false;
 
         static List<Agent> Agents = [];
-        static Vector2 StartPosition = new (1, 15);
-        public static Vector2 EndPos { get; private set;} = new (39, 15);
+        static Vector2 StartPosition = new(1, 15);
+        //static Vector2 StartPosition = new (15, 15);
+        public static Vector2 EndPos { get; private set; } = new(39, 15);
 
         public static List<Vector2> ObstaclePositions { get; private set; } = []; 
         public static bool DisplayRayCastDebug { get; private set; } = false;

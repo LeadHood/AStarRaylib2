@@ -7,7 +7,8 @@ namespace AStarRaylib
 {
     interface IPathFinder
     {
-        public string Name { get; }
-        public List<Vector2> FindPath(Tile[,] tiles, Tile start, Tile end);
+        string Name { get; }
+        int SearchedTiles { get; }
+        List<Vector2> FindPath(Tile[,] tiles, Tile start, Tile end);
     }
 }

@@ -7,15 +7,13 @@ namespace AStarRaylib.Pathfinders
 {
     class AStar(Func<Vector2, Vector2, int, int> gEvaluator, Func<Vector2, Vector2, int> hEvalutator, string name) : IPathFinder
     {
-        string IPathFinder.Name => name;
+        public string Name => name;
+        public int SearchedTiles { get; private set; }
 
         public List<Vector2> FindPath(Tile[,] tiles, Tile start, Tile end)
         {   
-            //Sorting by F value
-            //SortedSet<Tile> openedTiles = new SortedSet<Tile>(Comparer<Tile>.Create((a, b) => 
-            //    a.F != b.F ? a.F.CompareTo(b.F) : a.GetHashCode().CompareTo(b.GetHashCode())));
             List<Tile> openedTiles = new();
-
+            
             Tile currentTile = start;
 
             while(currentTile != end)
@@ -83,6 +81,8 @@ namespace AStarRaylib.Pathfinders
             {
                 tiles[(int)v.X, (int)v.Y].OverrideColor = Color.DarkBlue;
             }
+            
+            SearchedTiles = openedTiles.Count;
 
             return path;
         }
