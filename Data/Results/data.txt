@@ -1,9 +1,0 @@
-../../../Data/Maps/openMap.json:
-Agent 0, (A-Star) had an average of: 0,04577950000000004
-Agent 1, (Dijkstra) had an average of: 0,8040037999999999
-Agent 2, (Greedy) had an average of: 0,033745300000000006
-
-../../../Data/Maps/closedMap.json:
-Agent 0, (A-Star) had an average of: 0,7275258000000002
-Agent 1, (Dijkstra) had an average of: 0,5400313999999994
-Agent 2, (Greedy) had an average of: 0,6502453999999991

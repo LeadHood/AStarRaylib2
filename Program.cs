@@ -44,10 +44,11 @@ namespace AStarRaylib
         static readonly Func<Vector2, Vector2, int> hEvaluator = HEvalutators.Manhattan();
         static readonly Func<Vector2, Vector2, int, int> gEvaluator = GEvaluators.Distance();
         
-        static readonly string savePath = "../../../Data/Maps/closedMap.json";
-        static readonly string loadPath = "../../../Data/Maps/.json";
+        static readonly string nameOfFile = "normalMap";
 
-        static readonly string dataSavePath = "../../../Data/Results/data.txt";
+        static readonly string savePath = $"../../../Data/Maps/{nameOfFile}.json";
+        static readonly string loadPath = $"../../../Data/Maps/{nameOfFile}.json";
+        static readonly string dataSavePath = $"../../../Data/Results/{nameOfFile}.txt";
 
         static List<IPathFinder> Pathfinders =
         [
@@ -188,31 +189,60 @@ namespace AStarRaylib
             }
         }
 
+        struct TestData
+        {
+            public int tests;
+            public double averageTiles;
+            public double averageTime;
+
+            public TestData()
+            {
+                tests = 0;
+                averageTiles = 0;
+                averageTime = 0;
+            }
+        }
+
         static void RunTests()
         {
-            (int, double)[] averageTimes = new (int, double)[Agents.Count];
-
-            for (int i = 0; i < 1000; i++) { 
-                for (int j = 0; j < Agents.Count; j++)
+            TestData[] testDatas = new TestData[] {
+                new TestData(),
+                new TestData(),
+                new TestData(),
+            };
+            
+            for (int i = 0; i < Agents.Count; i++) 
+            {
+                for (int j = 0; j < 1000; j++)
                 {
-                    Agents[j].Reset();
-                    
                     Stopwatch stopwatch = new();
+                    Agents[i].Reset();
+
                     stopwatch.Start();
-
-                    Agents[j].FindPath(EndPos);
+                    Agents[i].FindPath(EndPos);
                     stopwatch.Stop();
-
-                    averageTimes[j].Item2 = (averageTimes[j].Item1 * averageTimes[j].Item2 + stopwatch.Elapsed.TotalMilliseconds) / (averageTimes[j].Item1 + 1);
-                    averageTimes[j].Item1++;
+                    
+                    testDatas[i].averageTiles = (testDatas[i].averageTiles * testDatas[i].tests + Agents[i].Pathfinder.SearchedTiles) / (testDatas[i].tests + 1);
+                    testDatas[i].averageTime = (testDatas[i].averageTime * testDatas[i].tests + stopwatch.Elapsed.TotalMilliseconds)/ (testDatas[i].tests + 1);
+                    testDatas[i].tests++;
                 }
             }
 
-            File.AppendAllText(dataSavePath, $"{savePath}:\n");
-            for (int i = 0; i < Agents.Count; i++)
+            File.AppendAllText(dataSavePath, $"{loadPath}:\n");
+            for (int i = 0; i < testDatas.Length; i++)
             {
-                File.AppendAllText(dataSavePath, $"Agent {i}, ({Agents[i].Pathfinder.Name}) had an average of: {averageTimes[i].Item2}\n");
-                Console.WriteLine($"Agent {i}, ({Agents[i].Pathfinder.Name}) had an average of: {averageTimes[i].Item2}");
+                string line = string.Format(
+                    "{0,-30} | {1,10:F2} ms | {2,8:F1} tiles | {3,8:F4} t/ms",
+                    $"Agent {i} ({Agents[i].Pathfinder.Name})",
+                    testDatas[i].averageTime,
+                    testDatas[i].averageTiles,
+                    testDatas[i].averageTiles / testDatas[i].averageTime
+                );
+
+                File.AppendAllText(dataSavePath, line);
+                File.AppendAllText(dataSavePath, "\n");
+                Console.WriteLine(line);
+                Console.WriteLine();
             }
         }
         
@@ -333,7 +363,10 @@ namespace AStarRaylib
         public static List<Vector2> LoadObstacles(string filePath)
         {
             if (!File.Exists(filePath))
+            {
+                Console.WriteLine("Could not find filepath: " + filePath);
                 return new List<Vector2>();
+            }
 
             string json = File.ReadAllText(filePath);
             Console.WriteLine(json);

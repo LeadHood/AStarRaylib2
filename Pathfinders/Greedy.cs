@@ -7,7 +7,7 @@ namespace AStarRaylib.Pathfinders
     class Greedy(Func<Vector2, Vector2, int> hEvalutator, string name) : IPathFinder
     {
         public string Name => name;
-        public int SearchedTiles { get; private set; }
+        public int SearchedTiles { get; set; }
 
         public List<Vector2> FindPath(Tile[,] tiles, Tile start, Tile end)
         {
@@ -45,7 +45,6 @@ namespace AStarRaylib.Pathfinders
                     neighbourTile.Type = TileType.Opened;
                     neighbourTile.Parent = currentTile;
                     neighbourTile.SetValues(hEvalutator);
-
                     openedTiles.Add(neighbourTile);
                 }
 
@@ -55,6 +54,7 @@ namespace AStarRaylib.Pathfinders
                 }
 
                 Tile lowestF = openedTiles.MinBy(t => t.F);
+                SearchedTiles++;
                 currentTile = lowestF;
                 openedTiles.Remove(lowestF);
             }
@@ -66,7 +66,6 @@ namespace AStarRaylib.Pathfinders
                 tiles[(int)v.X, (int)v.Y].OverrideColor = Color.DarkBlue;
             }
 
-            SearchedTiles = openedTiles.Count;
 
             return path;
         }

@@ -10,7 +10,7 @@ namespace AStarRaylib.Pathfinders
     class Dijkstra(Func<Vector2, Vector2, int, int> gEvaluator, string name) : IPathFinder
     {
         public string Name => name;
-        public int SearchedTiles { get; private set; }
+        public int SearchedTiles { get; set; }
 
         public List<Vector2> FindPath(Tile[,] tiles, Tile start, Tile end)
         {
@@ -73,6 +73,7 @@ namespace AStarRaylib.Pathfinders
 
                 Tile lowestG = OpenedTiles.MinBy(t => t.G);
                 currentTile = lowestG;
+                SearchedTiles++;
                 OpenedTiles.Remove(lowestG);
             }
 
@@ -83,7 +84,6 @@ namespace AStarRaylib.Pathfinders
                 tiles[(int)v.X, (int)v.Y].OverrideColor = Color.DarkBlue;
             }
 
-            SearchedTiles = OpenedTiles.Count;
 
             return path;
         }

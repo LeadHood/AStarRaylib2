@@ -14,6 +14,7 @@
 
   <ItemGroup>
     <Folder Include="Data\Maps\" />
+    <Folder Include="Data\Results\" />
   </ItemGroup>
 
 </Project>

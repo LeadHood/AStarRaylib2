@@ -49,6 +49,7 @@ namespace AStarRaylib
         public void Reset()
         {
             Path.Clear();            
+            Pathfinder.SearchedTiles = 0;
             ResetTiles();
         }
     }

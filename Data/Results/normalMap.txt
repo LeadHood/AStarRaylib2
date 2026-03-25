@@ -1,0 +1,20 @@
+../../../Data/Maps/normalMap.json:
+Agent 0 (A-Star)               |       0,63 ms |    612,0 tiles | 972,9553 t/ms
+Agent 1 (Dijkstra)             |       0,57 ms |    989,0 tiles | 1737,4311 t/ms
+Agent 2 (Greedy)               |       0,23 ms |    220,0 tiles | 938,9207 t/ms
+../../../Data/Maps/normalMap.json:
+Agent 0 (A-Star)               |       0,66 ms |    612,0 tiles | 925,2260 t/ms
+Agent 1 (Dijkstra)             |       0,58 ms |    989,0 tiles | 1719,2925 t/ms
+Agent 2 (Greedy)               |       0,23 ms |    220,0 tiles | 963,6815 t/ms
+../../../Data/Maps/normalMap.json:
+Agent 0 (A-Star)               |       0,62 ms |    612,0 tiles | 983,4668 t/ms
+Agent 1 (Dijkstra)             |       0,56 ms |    989,0 tiles | 1758,4270 t/ms
+Agent 2 (Greedy)               |       0,23 ms |    220,0 tiles | 943,6402 t/ms
+../../../Data/Maps/normalMap.json:
+Agent 0 (A-Star)               |       0,62 ms |    612,0 tiles | 984,8237 t/ms
+Agent 1 (Dijkstra)             |       0,57 ms |    989,0 tiles | 1743,9848 t/ms
+Agent 2 (Greedy)               |       0,22 ms |    220,0 tiles | 982,7224 t/ms
+../../../Data/Maps/normalMap.json:
+Agent 0 (A-Star)               |       0,62 ms |    612,0 tiles | 979,7899 t/ms
+Agent 1 (Dijkstra)             |       0,57 ms |    989,0 tiles | 1739,4963 t/ms
+Agent 2 (Greedy)               |       0,23 ms |    220,0 tiles | 949,0883 t/ms

@@ -8,7 +8,7 @@ namespace AStarRaylib
     interface IPathFinder
     {
         string Name { get; }
-        int SearchedTiles { get; }
+        int SearchedTiles { get; set; }
         List<Vector2> FindPath(Tile[,] tiles, Tile start, Tile end);
     }
 }
