@@ -46,7 +46,8 @@ namespace AStarRaylib
         
         static readonly string nameOfFile = "normalMap";
 
-        static readonly string savePath = $"../../../Data/Maps/{nameOfFile}.json";
+        //static readonly string savePath = $"../../../Data/Maps/{nameOfFile}.json";
+        static readonly string savePath = $"../../../Data/Maps/temp.json";
         static readonly string loadPath = $"../../../Data/Maps/{nameOfFile}.json";
         static readonly string dataSavePath = $"../../../Data/Results/{nameOfFile}.txt";
 
@@ -81,6 +82,8 @@ namespace AStarRaylib
             {
                 Agents.Add(new Agent(Pathfinders[i], StartPosition));
             }
+
+            ObstaclePositions = LoadObstacles(loadPath);
 
             if(GenerateMaze)
             {

@@ -1,0 +1,24 @@
+../../../Data/Maps/mazeMap.json:
+Agent 0 (A-Star)               |       0,22 ms |    374,0 tiles | 1694,6403 t/ms
+Agent 1 (Dijkstra)             |       0,21 ms |    396,0 tiles | 1910,2031 t/ms
+Agent 2 (Greedy)               |       0,16 ms |    282,0 tiles | 1797,1238 t/ms
+../../../Data/Maps/mazeMap.json:
+Agent 0 (A-Star)               |       0,27 ms |    374,0 tiles | 1373,9175 t/ms
+Agent 1 (Dijkstra)             |       0,20 ms |    396,0 tiles | 1958,7176 t/ms
+Agent 2 (Greedy)               |       0,15 ms |    282,0 tiles | 1917,3578 t/ms
+../../../Data/Maps/mazeMap.json:
+Agent 0 (A-Star)               |       0,23 ms |    374,0 tiles | 1645,8073 t/ms
+Agent 1 (Dijkstra)             |       0,22 ms |    396,0 tiles | 1835,7036 t/ms
+Agent 2 (Greedy)               |       0,16 ms |    282,0 tiles | 1816,4708 t/ms
+../../../Data/Maps/mazeMap.json:
+Agent 0 (A-Star)               |       0,22 ms |    374,0 tiles | 1718,1112 t/ms
+Agent 1 (Dijkstra)             |       0,20 ms |    396,0 tiles | 1984,0793 t/ms
+Agent 2 (Greedy)               |       0,14 ms |    282,0 tiles | 1980,1021 t/ms
+../../../Data/Maps/mazeMap.json:
+Agent 0 (A-Star)               |       0,22 ms |    374,0 tiles | 1715,7341 t/ms
+Agent 1 (Dijkstra)             |       0,21 ms |    396,0 tiles | 1877,0121 t/ms
+Agent 2 (Greedy)               |       0,14 ms |    282,0 tiles | 1977,4487 t/ms
+../../../Data/Maps/mazeMap.json:
+Agent 0 (A-Star)               |       0,17 ms |    375,0 tiles | 2264,7321 t/ms
+Agent 1 (Dijkstra)             |       0,16 ms |    399,0 tiles | 2558,8339 t/ms
+Agent 2 (Greedy)               |       0,11 ms |    280,0 tiles | 2502,8157 t/ms

@@ -66,7 +66,6 @@ namespace AStarRaylib.Pathfinders
                 tiles[(int)v.X, (int)v.Y].OverrideColor = Color.DarkBlue;
             }
 
-
             return path;
         }
     }
